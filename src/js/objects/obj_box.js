@@ -7,8 +7,8 @@ export default class ObjBox extends Obj {
         this.sprite = Sprite.fromImage(controller.imageController.getImage(SprBox));
         this.sprite.center();
 
-        this.posistion.x = 100;
-        this.posistion.y = 100;
+        this.position.x = 100;
+        this.position.y = 100;
         controller.registerCollision(0, this);
 
         super.evtCreate();

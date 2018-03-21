@@ -10,7 +10,7 @@ export default class Obj {
 
         this.depth = 0;
 
-        this.posistion = {
+        this.position = {
             x: 0,
             y: 0,
         };
@@ -47,8 +47,8 @@ export default class Obj {
             this.sprite_index = Math.floor(controller.ticks * this.sprite_speed) % index_max;
         }
         if (this.hitbox !== null) {
-            this.hitbox.x = this.posistion.x;
-            this.hitbox.y = this.posistion.y;
+            this.hitbox.x = this.position.x;
+            this.hitbox.y = this.position.y;
             if (this.sprite !== null) {
                 this.hitbox.x -= this.sprite.offset.x * this.sprite.scale.x;
                 this.hitbox.y -= this.sprite.offset.y * this.sprite.scale.y;
@@ -63,7 +63,7 @@ export default class Obj {
     evtDraw(controller, context) {
         this.vpi = 0;
         if (this.sprite !== null) {
-            context.drawSprite(this.sprite, this.posistion.x, this.posistion.y, this.sprite_index);
+            context.drawSprite(this.sprite, this.position.x, this.position.y, this.sprite_index);
         }
     }
 

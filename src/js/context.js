@@ -104,4 +104,14 @@ export default class Context {
         this.ctx.fillRect(x, y, w, h);
         this.ctx.restore();
     }
+
+    drawRectRot(x, y, w, h, r, color='#000000') {
+        this.ctx.save();
+        this.setViewportContext();
+        this.ctx.translate(x + (w/2), y + (h/2));
+        this.ctx.rotate(r);
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(-w/2, -h/2, w, h);
+        this.ctx.restore();
+    }
 }

@@ -2,6 +2,7 @@ import Obj from "object";
 import keycodes from 'keycodes';
 import Sprite from "sprite";
 import SprCar from 'img/car.png'
+import Box from 'hitbox/box';
 
 export default class ObjCar extends Obj {
     evtCreate(controller) {
@@ -21,7 +22,10 @@ export default class ObjCar extends Obj {
 
         this.hasCollision = false;
 
-        super.evtCreate();
+        this.hitbox = Box.Create();
+        this.hitbox.w = this.sprite.width;
+        this.hitbox.h = this.sprite.height;
+        this.hitbox.center();
     }
 
     evtBeginStep(controller) {
@@ -66,14 +70,14 @@ export default class ObjCar extends Obj {
             this.speed -= 0.5**(2*(this.speed - maxspeed));
         }
 
-        this.posistion.x += Math.cos(this.direction) * this.speed;
-        this.posistion.y += Math.sin(this.direction) * this.speed;
+        this.position.x += Math.cos(this.direction) * this.speed;
+        this.position.y += Math.sin(this.direction) * this.speed;
 
         let vscale = 0.5;
         let vw = controller.context.width * vscale;
         let vh = controller.context.height * vscale;
-        let vx = this.posistion.x - (vw/2);
-        let vy = this.posistion.y - (vh/2);
+        let vx = this.position.x - (vw/2);
+        let vy = this.position.y - (vh/2);
 
         controller.context.viewport[0] = {
             x: vx,
@@ -82,20 +86,10 @@ export default class ObjCar extends Obj {
             h: vh,
         };
 
-        if (this.hitbox !== null) {
-            let w = this.sprite.width;
-            let h = this.sprite.height;
-            let dir = this.direction;
-            if (!(this.direction < Math.PI / 2 || (this.direction > Math.PI && this.direction < Math.PI * 3/2))) {
-                w = this.sprite.height;
-                h = this.sprite.width;
-                dir = this.direction - Math.PI / 2;
-            }
-            this.hitbox.w = Math.abs((w * Math.cos(dir)) + (h * Math.sin(dir)));
-            this.hitbox.h = Math.abs((w * Math.sin(dir)) + (h * Math.cos(dir)));
-            this.hitbox.x = this.posistion.x - (this.hitbox.w / 2);
-            this.hitbox.y = this.posistion.y - (this.hitbox.h / 2);
-        }
+        this.hitbox.r = this.direction;
+        this.hitbox.x = this.position.x;
+        this.hitbox.y = this.position.y;
+        this.hitbox.update();
     }
 
     evtDraw(controller, context) {
@@ -103,16 +97,19 @@ export default class ObjCar extends Obj {
         context.vpi = 0;
 
         let color = '#f430ff';
+        let color2 = '#a430ff';
         if (this.hasCollision) {
             color = '#f4307f'
+            color2 = '#a4307f';
         }
 
         if (this.sprite !== null) {
-            context.drawRect(this.hitbox.x, this.hitbox.y, this.hitbox.w, this.hitbox.h, color);
+            context.drawRect(this.hitbox.aabb.x, this.hitbox.aabb.y, this.hitbox.aabb.w, this.hitbox.aabb.h, color);
+            context.drawRectRot(this.hitbox.x - this.hitbox.offset.x, this.hitbox.y - this.hitbox.offset.y, this.hitbox.w, this.hitbox.h, this.hitbox.r, color2);
 
             context.drawSpriteRot(
                 this.sprite,
-                this.posistion.x, this.posistion.y,
+                this.position.x, this.position.y,
                 this.direction,
                 this.sprite_index);
         }
