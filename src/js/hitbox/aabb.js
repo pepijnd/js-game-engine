@@ -8,7 +8,7 @@ export default class AABB extends Hitbox{
     }
 
     static Create(options={}) {
-        Object.assign({}, this.GetDefaultOptions(), options);
+        options = Object.assign({}, this.GetDefaultOptions(), options);
         return new this.prototype.constructor(options);
     }
 
@@ -22,5 +22,14 @@ export default class AABB extends Hitbox{
                 this.y < other.y + other.h &&
                 this.y + this.h > other.y &&
                 super.checkCollision());
+    }
+
+    getVertices() {
+        let vertices = [];
+        vertices.push({x: 0, y: 0});
+        vertices.push({x: this.w, y: 0});
+        vertices.push({x: this.w, y: this.h});
+        vertices.push({x: 0, y: this.h});
+        return vertices;
     }
 }

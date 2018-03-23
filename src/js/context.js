@@ -86,10 +86,10 @@ export default class Context {
         this.ctx.restore();
     }
 
-    drawLine(x1, y1, x2, y2) {
+    drawLine(x1, y1, x2, y2, color='#000000') {
         this.ctx.save();
         this.setViewportContext();
-        this.ctx.fillStyle = '#000000';
+        this.ctx.fillStyle = color;
         this.ctx.beginPath();
         this.ctx.moveTo(x1, y1);
         this.ctx.lineTo(x2, y2);
@@ -112,6 +112,31 @@ export default class Context {
         this.ctx.rotate(r);
         this.ctx.fillStyle = color;
         this.ctx.fillRect(-w/2, -h/2, w, h);
+        this.ctx.restore();
+    }
+
+    drawVector(x, y, vector, color='#000000') {
+        this.ctx.save();
+        this.setViewportContext();
+        this.ctx.translate(x, y);
+        this.drawLine(0, 0, vector.m * Math.cos(vector.a), vector.m * Math.sin(vector.a));
+        this.ctx.restore();
+    }
+
+    drawPolygon(x, y, polygons, color='#000000') {
+        this.ctx.save();
+        this.setViewportContext();
+        this.ctx.beginPath();
+        this.ctx.translate(x, y);
+        let p1 = polygons[0];
+        this.ctx.moveTo(p1.x, p1.y);
+        for (let i=1; i<polygons.length; i++) {
+            let p = polygons[i];
+            this.ctx.lineTo(p.x, p.y);
+        }
+        this.ctx.closePath();
+        this.ctx.strokeStyle = color;
+        this.ctx.stroke();
         this.ctx.restore();
     }
 }
