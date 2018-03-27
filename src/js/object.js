@@ -1,8 +1,9 @@
 import AABB from "hitbox/aabb";
 
 export default class Obj {
-    constructor(sprite=null) {
+    constructor(sprite = null) {
         this._id = null;
+        this._created = false;
 
         this.sprite = sprite;
         this.sprite_index = 0;
@@ -18,18 +19,18 @@ export default class Obj {
         this.hitbox = null;
     }
 
-    set id(value) {
-        this._id = value;
-    }
-
     get id() {
         return this._id;
     }
 
-    static Create(controller, sprite=null) {
+    set id(value) {
+        this._id = value;
+    }
+
+    static Create(controller, sprite = null) {
         let obj = new this.prototype.constructor(sprite);
         controller.objectController.register(obj);
-        obj.evtCreate(controller);
+        controller.newObjects.push(obj);
         return obj;
     }
 
@@ -50,8 +51,8 @@ export default class Obj {
             this.hitbox.x = this.position.x;
             this.hitbox.y = this.position.y;
             if (this.sprite !== null) {
-                this.hitbox.x -= this.sprite.offset.x * this.sprite.scale.x;
-                this.hitbox.y -= this.sprite.offset.y * this.sprite.scale.y;
+                this.hitbox.x -= this.sprite.offset.x * this.sprite.ratio.x;
+                this.hitbox.y -= this.sprite.offset.y * this.sprite.ratio.y;
             }
         }
     }

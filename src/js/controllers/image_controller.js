@@ -13,11 +13,11 @@ export default class ImageController {
         let newImage = new Image();
         this.promises.push(
             new Promise((resolve, reject) => {
-                newImage.addEventListener('load', () => {
+                newImage.addEventListener("load", () => {
                     resolve(newImage.src);
                 }, false);
                 newImage.src = imageUrl;
                 this.imageList[imageUrl] = newImage;
-        }));
+            }));
     }
 }

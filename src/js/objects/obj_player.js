@@ -1,7 +1,7 @@
 import Obj from "js/object";
-import keycodes from 'keycodes';
+import keycodes from "keycodes";
 import Sprite from "sprite";
-import SprSampleSS from 'img/spritesheet.png'
+import SprSampleSS from "img/spritesheet.png"
 
 export default class ObjPlayer extends Obj {
     evtCreate(controller) {
@@ -27,18 +27,18 @@ export default class ObjPlayer extends Obj {
     evtStep(controller) {
         super.evtStep(controller);
         this.sprite_speed = 0.2;
-        if(controller.inputController.checkDown(keycodes.arrow.left)) {
+        if (controller.inputController.checkDown(keycodes.arrow.left)) {
             this.posistion.x -= 3;
             this.sprite = this.spr_player_left;
         }
-        else if(controller.inputController.checkDown(keycodes.arrow.right)) {
+        else if (controller.inputController.checkDown(keycodes.arrow.right)) {
             this.posistion.x += 3;
             this.sprite = this.spr_player_right;
         } else {
             this.sprite_speed = 0;
             this.sprite_index = 0;
         }
-        if(controller.inputController.checkPressed(keycodes.space)) {
+        if (controller.inputController.checkPressed(keycodes.space)) {
             if (this.doublejump === 2) {
                 this.vspeed = -6;
                 this.doublejump = 1;

@@ -1,6 +1,6 @@
-import Obj from 'object';
-import Sprite from 'sprite';
-import SprBox from 'img/box.png'
+import Obj from "object";
+import Sprite from "sprite";
+import SprBox from "img/box.png"
 import Box from "hitbox/box";
 
 export default class ObjBox extends Obj {
@@ -15,7 +15,7 @@ export default class ObjBox extends Obj {
 
         this.hitbox = Box.Create();
 
-        controller.registerCollision(0, this);
+        controller.registerHitbox(0, this);
 
         //super.evtCreate();
     }
@@ -34,11 +34,11 @@ export default class ObjBox extends Obj {
     evtDraw(controller, context) {
         //context.drawSpriteRot(this.sprite, this.position.x, this.position.y, this.direction);
         context.drawPolygon(this.hitbox.x - this.hitbox.offset.x,
-                            this.hitbox.y - this.hitbox.offset.y,
-                            this.hitbox.getVertices());
+            this.hitbox.y - this.hitbox.offset.y,
+            this.hitbox.getVertices());
         context.drawPolygon(this.hitbox.aabb.x - this.hitbox.aabb.offset.x,
-                            this.hitbox.aabb.y - this.hitbox.aabb.offset.y,
-                            this.hitbox.aabb.getVertices());
+            this.hitbox.aabb.y - this.hitbox.aabb.offset.y,
+            this.hitbox.aabb.getVertices());
         context.drawRect(this.hitbox.x - 2, this.hitbox.y - 2, 4, 4);
     }
 }

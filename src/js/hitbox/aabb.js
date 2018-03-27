@@ -1,13 +1,14 @@
 import Hitbox from "hitbox/hitbox";
+import Polygon from "./polygon";
 
-export default class AABB extends Hitbox{
+export default class AABB extends Hitbox {
     constructor(options) {
         super(options);
         this.w = options.w;
         this.h = options.h;
     }
 
-    static Create(options={}) {
+    static Create(options = {}) {
         options = Object.assign({}, this.GetDefaultOptions(), options);
         return new this.prototype.constructor(options);
     }
@@ -17,11 +18,14 @@ export default class AABB extends Hitbox{
     }
 
     checkCollision(other) {
-        return (this.x < other.x + other.w &&
+        if (other instanceof AABB) {
+            return (this.x < other.x + other.w &&
                 this.x + this.w > other.x &&
                 this.y < other.y + other.h &&
-                this.y + this.h > other.y &&
-                super.checkCollision());
+                this.y + this.h > other.y);
+        } else {
+            return this.toPolygon().checkCollision(other.toPolygon());
+        }
     }
 
     getVertices() {
@@ -31,5 +35,11 @@ export default class AABB extends Hitbox{
         vertices.push({x: this.w, y: this.h});
         vertices.push({x: 0, y: this.h});
         return vertices;
+    }
+
+    toPolygon() {
+        let polygon = Polygon.Create({vertices: this.getVertices()});
+        polygon = Object.assign(polygon, this);
+        return polygon;
     }
 }

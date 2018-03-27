@@ -19,7 +19,7 @@ export default class Context {
     }
 
     init() {
-        this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext("2d");
         this.width = this.canvas.width;
         this.height = this.canvas.height;
     }
@@ -43,14 +43,15 @@ export default class Context {
         this.ctx.save();
         this.setViewportContext();
         this.ctx.translate(dstX, dstY);
+        this.ctx.scale(sprite.scale.x, sprite.scale.y);
         this.ctx.drawImage(
             sprite.img,
             sprite.offsetX + (sprite.sprite_positions[index][0] * (sprite.spacingX + sprite.sprite_width)),
             sprite.offsetY + (sprite.sprite_positions[index][1] * (sprite.spacingY + sprite.sprite_height)),
             sprite.sprite_width, sprite.sprite_height,
-            -(sprite.sprite_width - sprite.offset.x) * sprite.scale.x,
-            -(sprite.sprite_height - sprite.offset.y) * sprite.scale.y,
-            sprite.sprite_width * sprite.scale.x, sprite.sprite_height * sprite.scale.y
+            -sprite.offset.x * sprite.ratio.x,
+            -sprite.offset.y * sprite.ratio.y,
+            sprite.width, sprite.height
         );
         this.ctx.restore();
     }
@@ -60,33 +61,34 @@ export default class Context {
         this.setViewportContext();
         this.ctx.translate(dstX, dstY);
         this.ctx.rotate(rot);
+        this.ctx.scale(sprite.scale.x, sprite.scale.y);
         this.ctx.drawImage(
             sprite.img,
             sprite.offsetX + (sprite.sprite_positions[index][0] * (sprite.spacingX + sprite.sprite_width)),
             sprite.offsetY + (sprite.sprite_positions[index][1] * (sprite.spacingY + sprite.sprite_height)),
             sprite.sprite_width, sprite.sprite_height,
-            -(sprite.sprite_width - sprite.offset.x) * sprite.scale.x,
-            -(sprite.sprite_height - sprite.offset.y) * sprite.scale.y,
-            sprite.sprite_width * sprite.scale.x, sprite.sprite_height * sprite.scale.y
+            -sprite.offset.x * sprite.ratio.x,
+            -sprite.offset.y * sprite.ratio.y,
+            sprite.width, sprite.height
         );
         this.ctx.restore();
     }
 
     drawClear() {
-        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillStyle = "#ffffff";
         this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    drawText(str, x, y, size = 30, font = 'arial', maxwidth) {
+    drawText(str, x, y, size = 30, font = "arial", maxwidth) {
         this.ctx.save();
         this.setViewportContext();
-        this.ctx.font = size + 'px ' + font;
-        this.ctx.fillStyle = '#000000';
+        this.ctx.font = size + "px " + font;
+        this.ctx.fillStyle = "#000000";
         this.ctx.fillText(str, x, y, maxwidth);
         this.ctx.restore();
     }
 
-    drawLine(x1, y1, x2, y2, color='#000000') {
+    drawLine(x1, y1, x2, y2, color = "#000000") {
         this.ctx.save();
         this.setViewportContext();
         this.ctx.fillStyle = color;
@@ -97,7 +99,7 @@ export default class Context {
         this.ctx.restore();
     }
 
-    drawRect(x, y, w, h, color='#000000') {
+    drawRect(x, y, w, h, color = "#000000") {
         this.ctx.save();
         this.setViewportContext();
         this.ctx.fillStyle = color;
@@ -105,17 +107,17 @@ export default class Context {
         this.ctx.restore();
     }
 
-    drawRectRot(x, y, w, h, r, color='#000000') {
+    drawRectRot(x, y, w, h, r, color = "#000000") {
         this.ctx.save();
         this.setViewportContext();
-        this.ctx.translate(x + (w/2), y + (h/2));
+        this.ctx.translate(x + (w / 2), y + (h / 2));
         this.ctx.rotate(r);
         this.ctx.fillStyle = color;
-        this.ctx.fillRect(-w/2, -h/2, w, h);
+        this.ctx.fillRect(-w / 2, -h / 2, w, h);
         this.ctx.restore();
     }
 
-    drawVector(x, y, vector, color='#000000') {
+    drawVector(x, y, vector, color = "#000000") {
         this.ctx.save();
         this.setViewportContext();
         this.ctx.translate(x, y);
@@ -123,14 +125,14 @@ export default class Context {
         this.ctx.restore();
     }
 
-    drawPolygon(x, y, polygons, color='#000000') {
+    drawPolygon(x, y, polygons, color = "#000000") {
         this.ctx.save();
         this.setViewportContext();
         this.ctx.beginPath();
         this.ctx.translate(x, y);
         let p1 = polygons[0];
         this.ctx.moveTo(p1.x, p1.y);
-        for (let i=1; i<polygons.length; i++) {
+        for (let i = 1; i < polygons.length; i++) {
             let p = polygons[i];
             this.ctx.lineTo(p.x, p.y);
         }

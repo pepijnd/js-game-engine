@@ -1,6 +1,7 @@
 import ImageController from "./image_controller";
 import InputController from "./input_controller";
 import ObjectController from "./object_controller";
+import AABB from "hitbox/aabb";
 
 export default class Controller {
     constructor(context) {
@@ -12,6 +13,8 @@ export default class Controller {
         this.objectController = new ObjectController(this);
 
         this.collisionMap = {};
+        this.collisionMapEvents = {};
+        this.newObjects = [];
 
         this.drawInterval = null;
         this.tickInterval = null;
@@ -23,25 +26,8 @@ export default class Controller {
         this.realTicks = 0;
     }
 
-    run(onRunning) {
-        Promise.all(this.imageController.promises).then(() => {
-            this.context.init();
-            this.setLoops();
-
-            let lastFrames = 0;
-            let lastTicks = 0;
-            setInterval(() => {
-                this.realFps = this.frames - lastFrames;
-                lastFrames = this.frames;
-
-                this.realTicks = this.ticks - lastTicks;
-                lastTicks = this.ticks;
-                }, 1000);
-            onRunning();
-            }
-        ).catch((e) => {
-            console.log(e);
-        });
+    get fps() {
+        return this.realFps;
     }
 
     set fps(value) {
@@ -49,17 +35,34 @@ export default class Controller {
         this.setLoops();
     }
 
+    get tickrate() {
+        return this.realTicks;
+    }
+
     set tickrate(value) {
         this.context.settings.tickrate = value;
         this.setLoops();
     }
 
-    get fps() {
-        return this.realFps;
-    }
+    run(onRunning) {
+        Promise.all(this.imageController.promises).then(() => {
+                this.context.init();
+                this.setLoops();
 
-    get tickrate() {
-        return this.realTicks;
+                let lastFrames = 0;
+                let lastTicks = 0;
+                setInterval(() => {
+                    this.realFps = this.frames - lastFrames;
+                    lastFrames = this.frames;
+
+                    this.realTicks = this.ticks - lastTicks;
+                    lastTicks = this.ticks;
+                }, 1000);
+                onRunning();
+            }
+        ).catch((e) => {
+            console.log(e);
+        });
     }
 
     setLoops() {
@@ -78,12 +81,41 @@ export default class Controller {
         this.context.drawClear();
         this.objectController.forAll((obj) => {
             obj.evtDraw(this, this.context);
-        }, 'depth');
+        }, "depth");
         this.frames += 1;
+    }
+
+
+    col_check_point(layer, x, y, hb = false) {
+        let hitbox = hb ? Object.assign(Object.create(Object.getPrototypeOf(hb)), hb) : AABB.Create({
+            x: x,
+            y: y,
+            w: 1,
+            h: 1
+        });
+        hitbox.x = x;
+        hitbox.y = y;
+        hitbox.update();
+        for (let i = 0; i < this.collisionMap[layer].length; i++) {
+            let col = this.collisionMap[layer][i];
+            if (col.hitbox !== false) {
+                if (col.hitbox.checkCollision(hitbox)) return col;
+            } else {
+                if (col.obj.hitbox.checkCollision(hitbox)) return col;
+            }
+        }
+        return false;
     }
 
     tickLoop() {
         this.inputController.setInputs();
+
+        let createEvents = this.newObjects.slice();
+        this.newObjects = [];
+        for (let i = 0; i < createEvents.length; i++) {
+            createEvents[i].evtCreate(this);
+            createEvents[i]._created = true;
+        }
 
         this.objectController.forAll((object) => {
             object.evtBeginStep(this);
@@ -91,11 +123,25 @@ export default class Controller {
 
         for (let layer in this.collisionMap) {
             let collision_layer = this.collisionMap[layer];
-            for (let i=0; i<collision_layer.length; i++) {
-                for (let j=0; j<collision_layer.length; j++) {
+            for (let i = 0; i < collision_layer.length; i++) {
+                for (let j = 0; j < collision_layer.length; j++) {
                     if (collision_layer[i] !== collision_layer[j]) {
-                        if (collision_layer[i].hitbox.checkCollision(collision_layer[j].hitbox)) {
-                            collision_layer[i].evtCollision(this, collision_layer[j]);
+                        if (this.collisionMapEvents[layer] !== undefined &&
+                            collision_layer[i].obj._id in this.collisionMapEvents[layer]) {
+                            let event_map = this.collisionMapEvents[layer][collision_layer[i].obj._id];
+                            for (let k = 0; k < event_map.length; k++) {
+                                if (event_map[k] === true || collision_layer[j].obj instanceof event_map[k]) {
+                                    let a = collision_layer[i].hitbox ?
+                                        collision_layer[i].hitbox : collision_layer[i].obj.hitbox;
+                                    let b = collision_layer[j].hitbox ?
+                                        collision_layer[j].hitbox : collision_layer[j].obj.hitbox;
+
+                                    if (a.checkCollision(b)) {
+                                        collision_layer[i].obj.evtCollision(this, collision_layer[j].obj,
+                                            {layer: layer, self: a, other: b});
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -113,10 +159,20 @@ export default class Controller {
         this.ticks += 1;
     }
 
-    registerCollision(layer, obj) {
+    registerHitbox(layer, obj, hitbox = false) {
         if (!(layer in this.collisionMap)) {
             this.collisionMap[layer] = [];
         }
-        this.collisionMap[layer].push(obj);
+        this.collisionMap[layer].push({obj: obj, hitbox: hitbox});
+    }
+
+    registerCollision(layer, object, type) {
+        if (!(layer in this.collisionMapEvents)) {
+            this.collisionMapEvents[layer] = {};
+        }
+        if (!(object._id in this.collisionMapEvents[layer])) {
+            this.collisionMapEvents[layer][object._id] = []
+        }
+        this.collisionMapEvents[layer][object._id].push(type);
     }
 }

@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from "jquery";
 
 export default class InputController {
     constructor(controller) {
@@ -36,7 +36,7 @@ export default class InputController {
             e.preventDefault();
         });
 
-        $(document).on('mousemove', (e) => {
+        $(document).on("mousemove", (e) => {
             let offset = controller.context.canvas.getBoundingClientRect();
             this.newMouse.x = e.pageX - offset.left;
             this.newMouse.y = e.pageY - offset.top;
