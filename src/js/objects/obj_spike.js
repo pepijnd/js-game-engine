@@ -2,6 +2,7 @@ import Obj from "object";
 import Sprite from "sprite";
 import SprSpikes from "img/spikes.png";
 import Polygon from "hitbox/polygon";
+import ObjKid from "objects/obj_kid";
 
 export default class ObjSpike extends Obj {
     evtCreate(controller) {
@@ -50,13 +51,20 @@ export default class ObjSpike extends Obj {
         this.hitbox.x = this.position.x;
         this.hitbox.y = this.position.y;
         this.hitbox.update();
-
         controller.registerHitbox(0, this);
+        controller.registerCollision(0, this, ObjKid);
+
+        this.collision = false;
 
         //super.evtCreate();
     }
 
+    evtBeginStep(controller) {
+        this.collision = false
+    }
+
     evtCollision(controller, other) {
+        this.collision = true;
     }
 
     evtStep(controller) {
@@ -65,5 +73,9 @@ export default class ObjSpike extends Obj {
 
     evtDraw(controller, context) {
         context.drawSprite(this.sprite, this.position.x, this.position.y);
+        //context.drawRect(this.position.x, this.position.y, 32, 32, "#ff0000");
+        if (this.collision) {
+            context.drawRect(this.position.x+2, this.position.y+28, 28, 4, "#ff0000");
+        }
     }
 }

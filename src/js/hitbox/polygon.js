@@ -8,11 +8,6 @@ export default class Polygon extends Hitbox {
         this.r = options.r;
         this.vertices = options.vertices;
 
-        this.offset = {
-            x: 0,
-            y: 0
-        };
-
         this.aabb = AABB.Create();
     }
 
@@ -51,12 +46,6 @@ export default class Polygon extends Hitbox {
         return {w: xmax - xmin, h: ymax - ymin};
     }
 
-    center() {
-        let size = this.getsize();
-        this.offset.x = size.w / 2;
-        this.offset.y = size.h / 2;
-    }
-
     update() {
         let size = this.getsize();
         let w = size.w;
@@ -69,8 +58,8 @@ export default class Polygon extends Hitbox {
         }
         this.aabb.w = Math.abs((w * Math.cos(r)) + (h * Math.sin(r)));
         this.aabb.h = Math.abs((w * Math.sin(r)) + (h * Math.cos(r)));
-        this.aabb.x = this.x - this.offset.x;
-        this.aabb.y = this.y - this.offset.y;
+        this.aabb.x = this.x;
+        this.aabb.y = this.y;
     }
 
     checkPolygonCollision(other) {
@@ -93,8 +82,8 @@ export default class Polygon extends Hitbox {
             let projection = {p1_min: null, p1_max: null, p2_min: null, p2_max: null};
             for (let j = 0; j < verts.length; j++) {
                 let proj_new = Vector.fromPoint(
-                    verts[j].x - this.offset.x + this.x,
-                    verts[j].y - this.offset.y + this.y
+                    verts[j].x  + this.x,
+                    verts[j].y  + this.y
                 ).dotProduct(normals[i]);
                 if (projection.p1_min === null || proj_new <= projection.p1_min) {
                     projection.p1_min = proj_new;
@@ -105,8 +94,8 @@ export default class Polygon extends Hitbox {
             }
             for (let j = 0; j < verts2.length; j++) {
                 let proj_new = Vector.fromPoint(
-                    verts2[j].x - other.offset.x + other.x,
-                    verts2[j].y - other.offset.y + other.y
+                    verts2[j].x + other.x,
+                    verts2[j].y + other.y
                 ).dotProduct(normals[i]);
                 if (projection.p2_min === null || proj_new <= projection.p2_min) {
                     projection.p2_min = proj_new;
@@ -126,13 +115,19 @@ export default class Polygon extends Hitbox {
     }
 
     checkCollision(other) {
-        if (other instanceof Polygon) {
-            if (this.aabb.checkCollision(other.aabb)) {
+        if (this.toAABB().checkCollision(other.toAABB())) {
+            if (other.constructor === Polygon) {
                 return this.checkPolygonCollision(other);
             }
-        } else {
-            return this.checkCollision(other.toPolygon());
+            else {
+                return this.checkCollision(other.toPolygon());
+            }
         }
+        return false;
+    }
+
+    toAABB() {
+        return this.aabb;
     }
 
     toPolygon() {
@@ -143,14 +138,11 @@ export default class Polygon extends Hitbox {
         let s = Math.sin(this.r);
         let c = Math.cos(this.r);
 
-        let x = vert.x - this.offset.x;
-        let y = vert.y - this.offset.y;
+        let x = vert.x;
+        let y = vert.y;
 
         let xnew = (x * c) - (y * s);
         let ynew = (x * s) + (y * c);
-
-        xnew += this.offset.x;
-        ynew += this.offset.y;
 
         return {x: xnew, y: ynew};
     }

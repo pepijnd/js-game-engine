@@ -25,6 +25,7 @@ export default class ObjectController {
             }
         } else {
             for (let id in this.objects) {
+                if (!this.objects.hasOwnProperty(id)) continue;
                 if (!created || this.objects[id]._created) {
                     f(this.objects[id]);
                 }

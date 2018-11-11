@@ -1,0 +1,122 @@
+if !htmlWebpackPlugin.options
+    - htmlWebpackPlugin.options = {};
+
+mixin title
+    title= htmlWebpackPlugin.options.title
+
+mixin favicon
+    if htmlWebpackPlugin.files.favicon
+        link(rel='shortcut icon', href=htmlWebpackPlugin.files.favicon)
+
+mixin mobile
+    if htmlWebpackPlugin.options.mobile
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+
+mixin appMount(ids)
+    if ids === undefined
+        - ids = htmlWebpackPlugin.options.appMountId;
+
+    if ids != undefined
+        if !Array.isArray(ids)
+            - ids = [ids];
+        each id in ids
+            div(id=id)&attributes(attributes)
+
+
+- var   selfclosingTags =  new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+- const inlined = new Set(), injected = new Set();
+- const cssToInline = new Set(), cssToInject = new Set(), jsToInline = new Set(), jsToInject = new Set();
+- const toInline = htmlWebpackPlugin.options.inline && new Set(Array.isArray(htmlWebpackPlugin.options.inline) ? htmlWebpackPlugin.options.inline : [htmlWebpackPlugin.options.inline]);
+- const substrStart = htmlWebpackPlugin.files.publicPath ? htmlWebpackPlugin.files.publicPath.length : 0;
+- const excludeJSWithCSS = htmlWebpackPlugin.options.excludeJSWithCSS;
+- const excludeJSChunks = htmlWebpackPlugin.options.excludeJSChunks && new Set(Array.isArray(htmlWebpackPlugin.options.excludeJSChunks) ? htmlWebpackPlugin.options.excludeJSChunks : [htmlWebpackPlugin.options.excludeJSChunks]);
+
+if toInline
+    each chunk, name in htmlWebpackPlugin.files.chunks
+        if excludeJSWithCSS && chunk.css.length > 0
+            - var rcSet = toInline.has(name) || toInline.has(name + ":css") ? cssToInline : cssToInject;
+            each css in chunk.css
+                - rcSet.add(css);
+            - continue;
+
+        if excludeJSChunks && excludeJSChunks.has(name)
+            - var rcSet = toInline.has(name) || toInline.has(name + ":css") ? cssToInline : cssToInject;
+            each css in chunk.css
+                - rcSet.add(css);
+            - continue;
+
+        if toInline.has(name)
+            - jsToInline.add(chunk.entry);
+            each css in chunk.css
+                - cssToInline.add(css);
+        else
+            - (toInline.has(name + ":js") ? jsToInline : jsToInject).add(chunk.entry);
+            - var rcSet = toInline.has(name + ":css") ? cssToInline : cssToInject;
+            each css in chunk.css
+                - rcSet.add(css);
+else
+    each css in htmlWebpackPlugin.files.css
+        - cssToInject.add(css);
+    each chunk, name in htmlWebpackPlugin.files.chunks
+        if (excludeJSWithCSS && chunk.css.length > 0) || (excludeJSChunks && excludeJSChunks.has(name))
+            - continue;
+        - jsToInject.add(chunk.entry);
+
+- function getFileContents(filename) {
+- return compilation.assets[filename.substr(substrStart)].source();
+- }
+
+- function gatherFiles(filename, searchWithin) {
+if searchWithin === undefined
+    - searchWithin = htmlWebpackPlugin.files.css.concat(htmlWebpackPlugin.files.js);
+if filename instanceof RegExp
+    - return searchWithin.filter(fn => filename.test(fn));
+else
+    - return searchWithin.indexOf(filename) !== -1 ? [filename] : [];
+- }
+
+mixin inline(filename, tag, searchWithin)
+    - var files = gatherFiles(filename, searchWithin)
+    each file in files
+        - var currentTag = tag || (file.endsWith(".css") ? "style" : file.endsWith(".js") ? "script" : "div");
+
+        #{currentTag}&attributes(attributes)!= getFileContents(file)
+
+        - inlined.add(file);
+    else
+        - console.warn("WARNING Nothing to inline for %s query", filename);
+
+mixin inject(filename, tag, searchWithin)
+    - var files = gatherFiles(filename)
+    each file in files
+        - var currentTag = tag || (file.endsWith(".css") ? "link" : file.endsWith(".js") ? "script" : "div");
+        if currentTag === "link"
+            link(rel="stylesheet", href=file)&attributes(attributes)
+        else if currentTag === "script"
+            script(src=file)&attributes(attributes)
+        else
+            #{currentTag}&attributes(attributes)
+
+        - injected.add(file);
+    else
+        - console.warn("WARNING Nothing to inject for %s query", filename);
+
+mixin CSS
+    each css in htmlWebpackPlugin.files.css
+        if injected.has(css) || inlined.has(css)
+            - continue;
+
+        if cssToInline.has(css)
+            +inline(css, "style")&attributes(attributes)
+        else if cssToInject.has(css)
+            +inject(css, "link")&attributes(attributes)
+
+mixin JS
+    each js in htmlWebpackPlugin.files.js
+        if injected.has(js) || inlined.has(js)
+            - continue;
+
+        if jsToInline.has(js)
+            +inline(js, "script")&attributes(attributes)
+        else if jsToInject.has(js)
+            +inject(js, "script")&attributes(attributes)

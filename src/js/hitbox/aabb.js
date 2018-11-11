@@ -17,15 +17,21 @@ export default class AABB extends Hitbox {
         return Object.assign({}, super.GetDefaultOptions(), {w: 0, h: 0});
     }
 
+    checkAABBCollision(other) {
+        return (this.x < other.x + other.w &&
+            this.x + this.w > other.x &&
+            this.y < other.y + other.h &&
+            this.y + this.h > other.y);
+    }
+
     checkCollision(other) {
-        if (other instanceof AABB) {
-            return (this.x < other.x + other.w &&
-                this.x + this.w > other.x &&
-                this.y < other.y + other.h &&
-                this.y + this.h > other.y);
-        } else {
+        if (other.constructor === AABB) {
+            return this.checkAABBCollision(other)
+        }
+        else if (this.checkAABBCollision(other.toAABB())) {
             return this.toPolygon().checkCollision(other.toPolygon());
         }
+        return false;
     }
 
     getVertices() {
@@ -37,9 +43,14 @@ export default class AABB extends Hitbox {
         return vertices;
     }
 
+    toAABB() {
+        return this;
+    }
+
     toPolygon() {
         let polygon = Polygon.Create({vertices: this.getVertices()});
         polygon = Object.assign(polygon, this);
+        polygon.update();
         return polygon;
     }
 }

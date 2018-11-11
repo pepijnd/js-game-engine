@@ -4,6 +4,15 @@ html, body, .geContainer {
 }
 
 .geContainer {
+  .geInfo {
+    width: 80%;
+    margin: 20px auto auto;
+    display: block;
+
+    input {
+      margin-top: 5px;
+    }
+  }
 }
 
 .gameCanvas {

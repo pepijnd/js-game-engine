@@ -11,16 +11,18 @@ export default class InputController {
 
         this.mouse = {
             x: 0,
-            y: 0
+            y: 0,
+            click: false
         };
 
         this.newMouse = {
             x: 0,
-            y: 0
+            y: 0,
+            click: false
         };
 
 
-        $(document).keydown((e) => {
+        $(document).on("keydown", (e) => {
             let keycode = e.which;
             if (this.newKeys.indexOf(keycode) === -1) {
                 this.newKeys.push(keycode);
@@ -28,7 +30,7 @@ export default class InputController {
             e.preventDefault();
         });
 
-        $(document).keyup((e) => {
+        $(document).on("keyup", (e) => {
             let keycode = e.which;
             this.newKeys = this.newKeys.filter((e) => {
                 return (e !== keycode)
@@ -41,6 +43,10 @@ export default class InputController {
             this.newMouse.x = e.pageX - offset.left;
             this.newMouse.y = e.pageY - offset.top;
         });
+
+        $(document).on("click", (e) => {
+            this.newMouse.click = true;
+        })
     }
 
     setInputs() {
@@ -53,6 +59,8 @@ export default class InputController {
         this.keys = this.newKeys.slice();
 
         this.mouse = Object.assign({}, this.newMouse);
+
+        this.newMouse.click = false;
     }
 
     checkDown(keycode) {
@@ -63,7 +71,7 @@ export default class InputController {
         return (this.keysPressed.indexOf(keycode) !== -1);
     }
 
-    checlReleased(keycode) {
+    checkReleased(keycode) {
         return (this.keysReleased.indexOf(keycode) !== -1);
     }
 }

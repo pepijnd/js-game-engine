@@ -2,8 +2,6 @@ export default class Hitbox {
     constructor(options) {
         this.x = options.x;
         this.y = options.y;
-
-        this.offset = options.offset;
     }
 
     static Create(options = {}) {
@@ -12,7 +10,7 @@ export default class Hitbox {
     }
 
     static GetDefaultOptions() {
-        return {x: 0, y: 0, offset: {x: 0, y: 0}};
+        return {x: 0, y: 0};
     }
 
     checkCollision(other) {
@@ -21,6 +19,10 @@ export default class Hitbox {
 
     getVertices() {
         return [];
+    }
+
+    toAABB() {
+        throw new Error("use of base hitbox");
     }
 
     toPolygon() {

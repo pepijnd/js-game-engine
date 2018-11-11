@@ -14,6 +14,7 @@ export default class ObjBlock extends Obj {
         this.hitbox.update();
 
         controller.registerHitbox("solid", this);
+        controller.registerHitbox("blood", this);
     }
 
     evtStep(controller) {

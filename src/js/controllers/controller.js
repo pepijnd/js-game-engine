@@ -24,6 +24,8 @@ export default class Controller {
 
         this.realFps = 0;
         this.realTicks = 0;
+
+        this.frametime = 0;
     }
 
     get fps() {
@@ -66,12 +68,15 @@ export default class Controller {
     }
 
     setLoops() {
-        clearInterval(this.drawInterval);
+        window.cancelAnimationFrame(this.drawInterval);
         clearInterval(this.tickInterval);
 
-        this.drawInterval = setInterval(() => {
-            this.drawLoop()
-        }, 1000 / this.context.settings.fps);
+        let controller = this;
+        this.drawInterval = window.requestAnimationFrame(function drawLoop() {
+            controller.drawLoop();
+            controller.drawInterval = window.requestAnimationFrame(drawLoop);
+
+        });
         this.tickInterval = setInterval(() => {
             this.tickLoop()
         }, 1000 / this.context.settings.tickrate);
@@ -108,6 +113,8 @@ export default class Controller {
     }
 
     tickLoop() {
+        let temp = window.performance.now();
+
         this.inputController.setInputs();
 
         let createEvents = this.newObjects.slice();
@@ -122,26 +129,29 @@ export default class Controller {
         });
 
         for (let layer in this.collisionMap) {
+            if (!this.collisionMap.hasOwnProperty(layer)) continue;
             let collision_layer = this.collisionMap[layer];
             for (let i = 0; i < collision_layer.length; i++) {
                 for (let j = 0; j < collision_layer.length; j++) {
                     if (collision_layer[i] !== collision_layer[j]) {
                         if (this.collisionMapEvents[layer] !== undefined &&
                             collision_layer[i].obj._id in this.collisionMapEvents[layer]) {
-                            let event_map = this.collisionMapEvents[layer][collision_layer[i].obj._id];
-                            for (let k = 0; k < event_map.length; k++) {
-                                if (event_map[k] === true || collision_layer[j].obj instanceof event_map[k]) {
-                                    let a = collision_layer[i].hitbox ?
-                                        collision_layer[i].hitbox : collision_layer[i].obj.hitbox;
-                                    let b = collision_layer[j].hitbox ?
-                                        collision_layer[j].hitbox : collision_layer[j].obj.hitbox;
-
-                                    if (a.checkCollision(b)) {
-                                        collision_layer[i].obj.evtCollision(this, collision_layer[j].obj,
-                                            {layer: layer, self: a, other: b});
+                                let event_map = this.collisionMapEvents[layer][collision_layer[i].obj._id];
+                                for (let k = 0; k < event_map.length; k++) {
+                                    if (event_map[k] === true || collision_layer[j].obj instanceof event_map[k]) {
+                                        let a = collision_layer[i].hitbox ?
+                                            collision_layer[i].hitbox : collision_layer[i].obj.hitbox;
+                                        let b = collision_layer[j].hitbox ?
+                                            collision_layer[j].hitbox : collision_layer[j].obj.hitbox;
+                                        if (collision_layer[i].obj.constructor.name === 'ObjKid' && collision_layer[j].obj.constructor.name === 'ObjSpike') {
+                                            //debugger;
+                                        }
+                                        if (a.checkCollision(b)) {
+                                            collision_layer[i].obj.evtCollision(this, collision_layer[j].obj,
+                                                {layer: layer, self: a, other: b});
+                                        }
                                     }
                                 }
-                            }
                         }
                     }
                 }
@@ -157,6 +167,12 @@ export default class Controller {
         });
 
         this.ticks += 1;
+        this.frametime = Math.round(100*(window.performance.now() - temp))/100;
+
+        if (this.ticks%50 === 0) {
+            document.getElementById('geFps').value = 'Fps: ' + this.realFps;
+            document.getElementById('geTickrate').value = 'Tickrate: ' + this.realTicks;
+        }
     }
 
     registerHitbox(layer, obj, hitbox = false) {

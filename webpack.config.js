@@ -1,4 +1,3 @@
-let webpack = require("webpack");
 let path = require("path");
 let HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -6,13 +5,23 @@ module.exports = {
     context: __dirname,
     entry: {
         app: "./src",
+        vendor: ['jquery'],
     },
     output: {
         path: path.join(__dirname, "/dist"),
         filename: "[name].js",
-        chunkFilename: "[hash]/js/[id].js",
-        hotUpdateMainFilename: "[hash]/update.json",
-        hotUpdateChunkFilename: "[hash]/js/[id].update.js"
+    },
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendor',
+                    chunks: 'all',
+                    enforce: true
+                }
+            }
+        }
     },
     resolve: {
         alias: {
@@ -44,8 +53,8 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ["babel-preset-env"],
-                        plugins: ["babel-plugin-transform-runtime"]
+                        presets: ["@babel/preset-env"],
+                        plugins: ["@babel/plugin-transform-runtime"]
                     }
                 }
             }

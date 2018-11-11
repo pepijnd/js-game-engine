@@ -9,11 +9,6 @@ export default class Box extends Hitbox {
         this.h = options.h;
         this.r = options.r;
 
-        this.offset = {
-            x: 0,
-            y: 0
-        };
-
         this.aabb = AABB.Create();
     }
 
@@ -24,11 +19,6 @@ export default class Box extends Hitbox {
 
     static GetDefaultOptions() {
         return Object.assign({}, super.GetDefaultOptions(), {w: 0, h: 0, r: 0});
-    }
-
-    center() {
-        this.offset.x = this.w / 2;
-        this.offset.y = this.h / 2;
     }
 
     update() {
@@ -42,31 +32,26 @@ export default class Box extends Hitbox {
         }
         this.aabb.w = Math.abs((w * Math.cos(r)) + (h * Math.sin(r)));
         this.aabb.h = Math.abs((w * Math.sin(r)) + (h * Math.cos(r)));
-        this.aabb.x = this.x - this.offset.x;
-        this.aabb.y = this.y - this.offset.y;
+        this.aabb.x = this.x;
+        this.aabb.y = this.y;
     }
 
     checkCollision(other) {
-        if (other instanceof AABB) {
-            if (!this.aabb.checkCollision(other)) {
-                return false;
-            }
+        if (this.toAABB().checkCollision(other.toAABB())) {
+            return this.toPolygon().checkCollision(other.toPolygon())
         }
-        return this.toPolygon().checkCollision(other.toPolygon())
+        return false;
     }
 
     rotateVertice(vert) {
         let s = Math.sin(this.r);
         let c = Math.cos(this.r);
 
-        let x = vert.x - this.offset.x;
-        let y = vert.y - this.offset.y;
+        let x = vert.x;
+        let y = vert.y;
 
         let xnew = (x * c) - (y * s);
         let ynew = (x * s) + (y * c);
-
-        xnew += this.offset.x;
-        ynew += this.offset.y;
 
         return {x: xnew, y: ynew};
     }
@@ -80,9 +65,14 @@ export default class Box extends Hitbox {
         return vertices;
     }
 
+    toAABB() {
+        return this.aabb;
+    }
+
     toPolygon() {
         let polygon = Polygon.Create({vertices: this.getVertices()});
         polygon = Object.assign(polygon, this);
+        polygon.update();
         return polygon;
     }
 }
