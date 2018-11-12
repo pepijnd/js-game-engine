@@ -23,6 +23,8 @@ export default class ObjKid extends Obj {
         this.hspeed = 8*(Math.random()-0.5);
         this.vspeed = 8*(Math.random()-0.8);
 
+        this.counter = 0;
+
         this.gravity = 0.44;
 
         controller.registerHitbox("blood", this);
@@ -42,6 +44,10 @@ export default class ObjKid extends Obj {
             this.position.x += this.hspeed;
             this.position.y += this.vspeed;
         }
+        if (this.counter > 200) {
+            this.delete();
+        }
+        else this.counter += 1;
     }
 
     evtEndStep(controller) {

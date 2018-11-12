@@ -135,8 +135,8 @@ export default class Controller {
                 for (let j = 0; j < collision_layer.length; j++) {
                     if (collision_layer[i] !== collision_layer[j]) {
                         if (this.collisionMapEvents[layer] !== undefined &&
-                            collision_layer[i].obj._id in this.collisionMapEvents[layer]) {
-                                let event_map = this.collisionMapEvents[layer][collision_layer[i].obj._id];
+                            collision_layer[i].obj.id in this.collisionMapEvents[layer]) {
+                                let event_map = this.collisionMapEvents[layer][collision_layer[i].obj.id];
                                 for (let k = 0; k < event_map.length; k++) {
                                     if (event_map[k] === true || collision_layer[j].obj instanceof event_map[k]) {
                                         let a = collision_layer[i].hitbox ?
@@ -169,6 +169,7 @@ export default class Controller {
         if (this.ticks%50 === 0) {
             document.getElementById('geFps').value = 'Fps: ' + this.realFps;
             document.getElementById('geTickrate').value = 'Tickrate: ' + this.realTicks;
+            document.getElementById('geFrametime').value = 'Frametime: ' + this.frametime;
         }
     }
 
@@ -183,9 +184,9 @@ export default class Controller {
         if (!(layer in this.collisionMapEvents)) {
             this.collisionMapEvents[layer] = {};
         }
-        if (!(object._id in this.collisionMapEvents[layer])) {
-            this.collisionMapEvents[layer][object._id] = []
+        if (!(object.id in this.collisionMapEvents[layer])) {
+            this.collisionMapEvents[layer][object.id] = []
         }
-        this.collisionMapEvents[layer][object._id].push(type);
+        this.collisionMapEvents[layer][object.id].push(type);
     }
 }
