@@ -143,9 +143,6 @@ export default class Controller {
                                             collision_layer[i].hitbox : collision_layer[i].obj.hitbox;
                                         let b = collision_layer[j].hitbox ?
                                             collision_layer[j].hitbox : collision_layer[j].obj.hitbox;
-                                        if (collision_layer[i].obj.constructor.name === 'ObjKid' && collision_layer[j].obj.constructor.name === 'ObjSpike') {
-                                            //debugger;
-                                        }
                                         if (a.checkCollision(b)) {
                                             collision_layer[i].obj.evtCollision(this, collision_layer[j].obj,
                                                 {layer: layer, self: a, other: b});

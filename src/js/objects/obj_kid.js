@@ -6,6 +6,8 @@ import ObjSpike from "objects/obj_spike";
 import AABB from "hitbox/aabb";
 import ObjBlood from "objects/obj_blood";
 
+import Property from "property";
+
 
 export default class ObjKid extends Obj {
     evtCreate(controller) {
@@ -13,16 +15,20 @@ export default class ObjKid extends Obj {
             controller.imageController.getImage(SprTheKid),
             24, 24, [[0, 0], [1, 0], [2, 0], [3, 0]], 0, 0);
 
-        this.position.x = 99;
+        this.position.x = 100;
         this.position.y = 100;
+        
+        this.offset = {
+            x: 8,
+            y: 3
+        };
 
-        this.hitbox = AABB.Create();
-        this.hitbox.w = 11;
-        this.hitbox.h = 21;
-        this.hitbox.x = this.position.x;
-        this.hitbox.y = this.position.y;
-        this.hitbox.offset.x = -8;
-        this.hitbox.offset.y = -3;
+        this.hitbox = AABB.Create({
+            w: 11,
+            h: 21,
+            x: this.position.x + this.offset.x,
+            y: this.position.y + this.offset.y
+        });
         this.hitbox.update();
 
         this.jump = 8.5;
@@ -41,8 +47,8 @@ export default class ObjKid extends Obj {
         //super.evtCreate();
     }
 
+
     evtBeginStep(controller) {
-        //this.collision = false
         this.hspeed = 0;
     }
 
@@ -69,10 +75,10 @@ export default class ObjKid extends Obj {
         }
 
         if (controller.inputController.checkPressed(82)) {
-            for (let i=0; i<80; i++) {
+            for (let i=0; i<20; i++) {
                 let blood = ObjBlood.Create(controller);
-                blood.position.x = this.position.x - this.hitbox.offset.x;
-                blood.position.y = this.position.y - this.hitbox.offset.y;
+                blood.position.x = this.position.x + this.offset.x;
+                blood.position.y = this.position.y + this.offset.y;
             }
         }
 
@@ -82,15 +88,14 @@ export default class ObjKid extends Obj {
 
         this.checkCollision(controller);
 
-
         this.position.x += this.hspeed;
         this.position.y += this.vspeed;
 
         this.vspeed += this.gravity;
 
         let floor = controller.col_check_point("solid",
-            this.hitbox.x - this.hitbox.offset.x,
-            this.hitbox.y - this.hitbox.offset.y + 1,
+            this.hitbox.x,
+            this.hitbox.y + 1,
             this.hitbox);
         if (floor) {
             this.djump = true;
@@ -106,10 +111,6 @@ export default class ObjKid extends Obj {
         else if (controller.inputController.checkReleased(Keycodes.shift) && this.vspeed < 0) {
             this.vspeed *= this.jumpRelease;
         }
-
-        this.hitbox.x = this.position.x;
-        this.hitbox.y = this.position.y;
-        this.hitbox.update();
     }
 
     checkCollision(controller) {
@@ -117,14 +118,14 @@ export default class ObjKid extends Obj {
         let wall;
 
         floor = controller.col_check_point("solid",
-            this.hitbox.x - this.hitbox.offset.x,
-            this.hitbox.y - this.hitbox.offset.y + this.vspeed,
+            this.hitbox.x,
+            this.hitbox.y + this.vspeed,
             this.hitbox);
         if (floor) {
             let c = 1;
             let check_pos = {
-                x: this.hitbox.x - this.hitbox.offset.x,
-                y: this.hitbox.y - this.hitbox.offset.y
+                x: this.hitbox.x,
+                y: this.hitbox.y
             };
             if (this.vspeed > 0) {
                 while (c < Math.abs(this.vspeed) && !controller.col_check_point("solid",
@@ -143,19 +144,15 @@ export default class ObjKid extends Obj {
             this.vspeed = 0;
         }
 
-        this.hitbox.x = this.position.x;
-        this.hitbox.y = this.position.y;
-        this.hitbox.update();
-
         wall = controller.col_check_point("solid",
-            this.hitbox.x - this.hitbox.offset.x + this.hspeed,
-            this.hitbox.y - this.hitbox.offset.y + this.vspeed,
+            this.hitbox.x + this.hspeed,
+            this.hitbox.y + this.vspeed,
             this.hitbox);
         if (wall) {
             let c = 1;
             let check_pos = {
-                x: this.hitbox.x - this.hitbox.offset.x,
-                y: this.hitbox.y - this.hitbox.offset.y + this.vspeed
+                x: this.hitbox.x,
+                y: this.hitbox.y + this.vspeed
             };
             if (this.hspeed > 0) {
                 while (c < Math.abs(this.hspeed) && !controller.col_check_point("solid",
@@ -172,14 +169,15 @@ export default class ObjKid extends Obj {
             }
             this.hspeed = 0;
         }
+    }
 
-        this.hitbox.x = this.position.x;
-        this.hitbox.y = this.position.y;
-        this.hitbox.update();
+    evtEndStep(controller) {
+        this.hitbox.x = this.position.x + this.offset.x;
+        this.hitbox.y = this.position.y + this.offset.y;
+        this.hitbox.update()
     }
 
     evtDraw(controller, context) {
         context.drawSprite(this.sprite, this.position.x, this.position.y);
-        context.drawText(this.position.x + " " + this.position.y, 5, 17, 12);
     }
 }

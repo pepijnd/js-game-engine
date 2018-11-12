@@ -36,7 +36,7 @@
     "url": ""
   },
   "scripts": {
-    "start": "webpack-dev-server -d --colors",
+    "dev": "webpack-dev-server -d --colors",
     "build": "webpack -p"
   },
   "engines": {

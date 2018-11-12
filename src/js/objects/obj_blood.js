@@ -5,13 +5,17 @@ import ObjBlock from "objects/obj_block";
 
 export default class ObjKid extends Obj {
     evtCreate(controller) {
-        this.hitbox = AABB.Create();
-        this.hitbox.w = 2;
-        this.hitbox.h = 2;
-        this.hitbox.x = this.position.x;
-        this.hitbox.y = this.position.y;
-        this.hitbox.offset.x = 1;
-        this.hitbox.offset.y = 1;
+        this.offset = {
+            x: 1,
+            y: 1
+        };
+
+        this.hitbox = AABB.Create({
+            w: 2,
+            h: 2,
+            x: this.position.x + this.offset.x,
+            y: this.position.y + this.offset.y
+        });
         this.hitbox.update();
 
         this.collision = false;
@@ -38,9 +42,11 @@ export default class ObjKid extends Obj {
             this.position.x += this.hspeed;
             this.position.y += this.vspeed;
         }
+    }
 
-        this.hitbox.x = this.position.x;
-        this.hitbox.y = this.position.y;
+    evtEndStep(controller) {
+        this.hitbox.x = this.position.x + this.offset.x;
+        this.hitbox.y = this.position.y + this.offset.y;
         this.hitbox.update();
     }
 
