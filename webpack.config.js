@@ -1,17 +1,33 @@
-const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+
+const path = require('path');
+const dev = process.env.NODE_ENV !== 'production';
+
 
 module.exports = {
-    context: __dirname,
     entry: {
         app: './src',
         vendor: ['jquery'],
     },
     output: {
-        filename: '[name].js',
+        filename: 'assets/js/' + (dev ? '[name].js' : '[name].[hash].js')
     },
     optimization: {
+        minimizer: [new UglifyJsPlugin({
+            cache: true,
+            parallel: true,
+            uglifyOptions: {
+                compress: false,
+                ecma: 6,
+                mangle: true
+            },
+            sourceMap: dev
+        }),
+            new OptimizeCSSAssetsPlugin({})
+        ],
         splitChunks: {
             cacheGroups: {
                 vendor: {
@@ -31,25 +47,34 @@ module.exports = {
     },
     resolve: {
         alias: {
-            gameSettings$: path.resolve(__dirname, 'gameSettings.json'),
-            keycodes$: path.resolve(__dirname, 'keycodes.json')
+            gameSettings$: path.resolve('gameSettings.json'),
+            keycodes$: path.resolve('keycodes.json')
         },
         modules: [
             'node_modules',
-            path.resolve(__dirname, 'src'),
-            path.resolve(__dirname, 'src/js')
+            path.resolve('src'),
+            path.resolve('src/js')
         ]
     },
-    recordsOutputPath: path.join(__dirname, 'records.json'),
+    recordsOutputPath: path.resolve('records.json'),
     module: {
         rules: [
-            {test: /\.png$/, loader: 'file-loader?outputPath=img'},
-            {test: /\.jpg$/, loader: 'file-loader?outputPath=img'},
-            {test: /\.gif$/, loader: 'file-loader?outputPath=img'},
-            {test: /\.woff$/, loader: 'file-loader?outputPath=font'},
-            {test: /\.eot$/, loader: 'file-loader?outputPath=font/'},
-            {test: /\.ttf$/, loader: 'file-loader?outputPath=font/'},
-            {test: /\.svg$/, loader: 'file-loader?outputPath=font/'},
+            {
+                test: /\.(png|jpg|gif|svg)$/,
+                loader: 'file-loader',
+                include: [path.resolve('src/img')],
+                options: {
+                    name: 'assets/img/' + (dev ? '[name].[ext]' : '[hash].[ext]'),
+                }
+            },
+            {
+                test: /\.(woff|eot|ttf|svg)/,
+                loader: 'file-loader',
+                include: [path.resolve('src/font')],
+                options: {
+                    name: 'assets/font/' + (dev ? '[name].[ext]' : '[hash].[ext]'),
+                }
+            },
             {
                 test: /\.pug$/,
                 loader: 'pug-loader',
@@ -58,9 +83,8 @@ module.exports = {
             {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    dev ? 'style-loader' : MiniCssExtractPlugin.loader,
                     'css-loader',
-                    //'postcss-loader',
                     'sass-loader',
                 ],
             },
@@ -78,14 +102,14 @@ module.exports = {
         ]
     },
     plugins: [
+        new MiniCssExtractPlugin({
+            filename: 'assets/css/[name].[hash].css',
+            chunkFilename: 'assets/[id].[hash].css',
+        }),
         new HtmlWebpackPlugin({
             inject: false,
-            template: 'src/pug/index.pug',
+            template: 'src/html/index.pug',
             title: 'Game Engine'
-        }),
-        new MiniCssExtractPlugin({
-            filename: "[name].css",
-            chunkFilename: "[id].css"
         }),
     ],
 };

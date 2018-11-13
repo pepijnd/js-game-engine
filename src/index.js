@@ -1,4 +1,4 @@
-import "index.scss";
+import "css/index.scss";
 import settings from "gameSettings";
 
 import Context from "context";
