@@ -1,5 +1,6 @@
-let path = require('path');
-let HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     context: __dirname,
@@ -8,7 +9,6 @@ module.exports = {
         vendor: ['jquery'],
     },
     output: {
-        path: path.join(__dirname, '/dist'),
         filename: '[name].js',
     },
     optimization: {
@@ -17,6 +17,12 @@ module.exports = {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
                     name: 'vendor',
+                    chunks: 'all',
+                    enforce: true
+                },
+                styles: {
+                    test: /\.css$/,
+                    name: 'styles',
                     chunks: 'all',
                     enforce: true
                 }
@@ -37,8 +43,6 @@ module.exports = {
     recordsOutputPath: path.join(__dirname, 'records.json'),
     module: {
         rules: [
-            {test: /\.css$/, loader: 'style-loader!css-loader'},
-            {test: /\.scss/, loader: 'style-loader!css-loader!sass-loader'},
             {test: /\.png$/, loader: 'file-loader?outputPath=img'},
             {test: /\.jpg$/, loader: 'file-loader?outputPath=img'},
             {test: /\.gif$/, loader: 'file-loader?outputPath=img'},
@@ -46,7 +50,20 @@ module.exports = {
             {test: /\.eot$/, loader: 'file-loader?outputPath=font/'},
             {test: /\.ttf$/, loader: 'file-loader?outputPath=font/'},
             {test: /\.svg$/, loader: 'file-loader?outputPath=font/'},
-            {test: /\.pug$/, loader: 'pug-loader', query: {}},
+            {
+                test: /\.pug$/,
+                loader: 'pug-loader',
+                query: {}
+            },
+            {
+                test: /\.(sa|sc|c)ss$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    //'postcss-loader',
+                    'sass-loader',
+                ],
+            },
             {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
@@ -65,6 +82,10 @@ module.exports = {
             inject: false,
             template: 'src/pug/index.pug',
             title: 'Game Engine'
+        }),
+        new MiniCssExtractPlugin({
+            filename: "[name].css",
+            chunkFilename: "[id].css"
         }),
     ],
 };

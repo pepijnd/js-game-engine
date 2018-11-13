@@ -5,48 +5,67 @@ import ObjBlock from "objects/obj_block";
 import Keycodes from "keycodes";
 
 export default class ObjController extends Obj {
-    evtCreate(controller) {
+    evtCreate() {
         //this.car = ObjCar.Create(controller);
         //this.box = ObjBox.Create(controller);
-        ObjKid.Create(controller);
+        ObjKid.Create(this.controller);
 
-        for (let i = 1; i < controller.context.width / 32 - 1; i++) {
-            let floor = ObjBlock.Create(controller);
+        for (let i = 1; i < this.controller.context.width / 32 - 1; i++) {
+            let floor = ObjBlock.Create(this.controller);
             floor.position.x = i * 32;
-            floor.position.y = controller.context.height - 32;
+            floor.position.y = this.controller.context.height - 32;
 
-            let ceil = ObjBlock.Create(controller);
-            ceil.position.x = i*32;
+            let ceil = ObjBlock.Create(this.controller);
+            ceil.position.x = i * 32;
             ceil.position.y = 0;
         }
 
-        for (let j=0; j < controller.context.height / 32; j++) {
-            let left = ObjBlock.Create(controller);
+        for (let j = 0; j < this.controller.context.height / 32; j++) {
+            let left = ObjBlock.Create(this.controller);
             left.position.x = 0;
-            left.position.y = j*32;
+            left.position.y = j * 32;
 
-            let right = ObjBlock.Create(controller);
-            right.position.x = controller.context.width - 32;
-            right.position.y = j*32;
+            let right = ObjBlock.Create(this.controller);
+            right.position.x = this.controller.context.width - 32;
+            right.position.y = j * 32;
         }
 
     }
 
-    evtStep(controller) {
-        if (controller.inputController.mouse.click) {
-            let block = ObjBlock.Create(controller);
-            block.position.x = Math.round(controller.inputController.mouse.x/16)*16;
-            block.position.y = Math.round(controller.inputController.mouse.y/16)*16;
+    evtStep() {
+        if (this.controller.inputController.mouse.click) {
+            let block = ObjBlock.Create(this.controller);
+            block.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
+            block.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
         }
 
 
-        if (controller.inputController.checkReleased(Keycodes.s)) {
-            let spike = ObjSpike.Create(controller);
-            spike.position.x = Math.round(controller.inputController.mouse.x/16)*16;
-            spike.position.y = Math.round(controller.inputController.mouse.y/16)*16;
+        if (this.controller.inputController.checkReleased(Keycodes.s)) {
+            let spike = ObjSpike.Create(this.controller);
+            spike.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
+            spike.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
+        }
+
+        if (this.controller.inputController.checkReleased(Keycodes.backspace)) {
+            let closest = null;
+            let distance = -1;
+            let origin = {
+                x: Math.round(this.controller.inputController.mouse.x / 16) * 16,
+                y: Math.round(this.controller.inputController.mouse.y / 16) * 16
+            };
+            this.controller.objectController.forAll((obj) => {
+                let dist = Math.sqrt((origin.x - obj.position.x)**2 + (origin.y - obj.position.y)**2);
+                if (distance === -1 || dist < distance) {
+                    closest = obj;
+                    distance = dist;
+                }
+            });
+            if (distance < 48) {
+                closest.delete();
+            }
         }
     }
 
-    evtDraw(controller, context) {
+    evtDraw(context) {
     }
 }

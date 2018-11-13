@@ -22,14 +22,14 @@ export default class ObjectController {
                 return second[0] - first[0];
             });
             for (let i = 0; i < items.length; i++) {
-                if (!created || items[i][1]._created) {
+                if (!created || items[i][1].created) {
                     f(items[i][1]);
                 }
             }
         } else {
             for (let id in this.objects) {
                 if (!this.objects.hasOwnProperty(id)) continue;
-                if (!created || this.objects[id]._created) {
+                if (!created || this.objects[id].created) {
                     f(this.objects[id]);
                 }
             }

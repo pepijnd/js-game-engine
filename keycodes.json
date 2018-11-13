@@ -7,5 +7,6 @@
   },
   "space": 32,
   "shift": 16,
+  "backspace": 8,
   "s": 83
 }

@@ -136,19 +136,19 @@ export default class Controller {
                     if (collision_layer[i] !== collision_layer[j]) {
                         if (this.collisionMapEvents[layer] !== undefined &&
                             collision_layer[i].obj.id in this.collisionMapEvents[layer]) {
-                                let event_map = this.collisionMapEvents[layer][collision_layer[i].obj.id];
-                                for (let k = 0; k < event_map.length; k++) {
-                                    if (event_map[k] === true || collision_layer[j].obj instanceof event_map[k]) {
-                                        let a = collision_layer[i].hitbox ?
-                                            collision_layer[i].hitbox : collision_layer[i].obj.hitbox;
-                                        let b = collision_layer[j].hitbox ?
-                                            collision_layer[j].hitbox : collision_layer[j].obj.hitbox;
-                                        if (a.checkCollision(b)) {
-                                            collision_layer[i].obj.evtCollision(this, collision_layer[j].obj,
-                                                {layer: layer, self: a, other: b});
-                                        }
+                            let event_map = this.collisionMapEvents[layer][collision_layer[i].obj.id];
+                            for (let k = 0; k < event_map.length; k++) {
+                                if (event_map[k] === true || collision_layer[j].obj instanceof event_map[k]) {
+                                    let a = collision_layer[i].hitbox ?
+                                        collision_layer[i].hitbox : collision_layer[i].obj.hitbox;
+                                    let b = collision_layer[j].hitbox ?
+                                        collision_layer[j].hitbox : collision_layer[j].obj.hitbox;
+                                    if (a.checkCollision(b)) {
+                                        collision_layer[i].obj.evtCollision(collision_layer[j].obj,
+                                            {layer: layer, self: a, other: b});
                                     }
                                 }
+                            }
                         }
                     }
                 }
@@ -164,9 +164,9 @@ export default class Controller {
         });
 
         this.ticks += 1;
-        this.frametime = Math.round(100*(window.performance.now() - temp))/100;
+        this.frametime = Math.round(100 * (window.performance.now() - temp)) / 100;
 
-        if (this.ticks%50 === 0) {
+        if (this.ticks % 50 === 0) {
             document.getElementById('geFps').value = 'Fps: ' + this.realFps;
             document.getElementById('geTickrate').value = 'Tickrate: ' + this.realTicks;
             document.getElementById('geFrametime').value = 'Frametime: ' + this.frametime;
@@ -180,6 +180,23 @@ export default class Controller {
         this.collisionMap[layer].push({obj: obj, hitbox: hitbox});
     }
 
+    deleteHitbox(layer, obj, hitbox = false) {
+        if (layer === true) {
+            for (let i in this.collisionMap) {
+                if (!this.collisionMap.hasOwnProperty(i)) continue;
+                this.deleteHitbox(i, obj, hitbox);
+            }
+        }
+        else {
+            if (!(layer in this.collisionMap)) {
+                throw Error();
+            }
+            this.collisionMap[layer] = this.collisionMap[layer].filter((item) => {
+                return !(item.obj === obj && (!hitbox || obj.hitbox === hitbox))
+            });
+        }
+    }
+
     registerCollision(layer, object, type) {
         if (!(layer in this.collisionMapEvents)) {
             this.collisionMapEvents[layer] = {};
@@ -188,5 +205,29 @@ export default class Controller {
             this.collisionMapEvents[layer][object.id] = []
         }
         this.collisionMapEvents[layer][object.id].push(type);
+    }
+
+    deleteCollision(layer, object, type = false) {
+        if (layer === true) {
+            for (let i in this.collisionMapEvents) {
+                if (!this.collisionMapEvents.hasOwnProperty(i)) continue;
+                this.deleteCollision(i, object, type);
+            }
+        }
+        else {
+            if (!(layer in this.collisionMapEvents)) {
+                throw Error();
+            }
+            if (type) {
+                let index = this.collisionMapEvents[layer][object.id].indexOf(type);
+                if (index !== -1) {
+                    this.collisionMapEvents[layer][object.id].slice(index, 1)
+                }
+            } else {
+                if (object.id in this.collisionMapEvents[layer]) {
+                    delete this.collisionMapEvents[layer][object.id];
+                }
+            }
+        }
     }
 }

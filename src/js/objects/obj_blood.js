@@ -31,11 +31,13 @@ export default class ObjKid extends Obj {
         controller.registerCollision("blood", this, ObjBlock);
     }
 
-    evtCollision(controller, other, hitbox) {
-        this.collision = true
+    evtCollision(other, hitbox) {
+        this.collision = true;
+        this.controller.deleteHitbox("blood", this);
+        this.controller.deleteCollision("blood", this);
     }
 
-    evtStep(controller) {
+    evtStep() {
         if (!this.collision) {
             this.vspeed += this.gravity;
             this.hspeed *= 0.98;
@@ -50,7 +52,7 @@ export default class ObjKid extends Obj {
         else this.counter += 1;
     }
 
-    evtEndStep(controller) {
+    evtEndStep() {
         this.hitbox.x = this.position.x + this.offset.x;
         this.hitbox.y = this.position.y + this.offset.y;
         this.hitbox.update();

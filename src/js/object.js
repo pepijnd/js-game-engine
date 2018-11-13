@@ -29,6 +29,10 @@ export default class Obj {
         this._id = value;
     }
 
+    get created() {
+        return this._created;
+    }
+
     get controller() {
         return this._controller;
     }
@@ -82,25 +86,8 @@ export default class Obj {
     }
 
     delete() {
+        this.controller.deleteHitbox(true, this);
+        this.controller.deleteCollision(true, this);
         delete this.controller.objectController.objects[this.id];
-        let collisionMap = this.controller.collisionMap;
-        for (let layer in collisionMap) {
-            if (!collisionMap.hasOwnProperty(layer)) continue;
-            for (let object in collisionMap[layer]) {
-                if (!collisionMap[layer].hasOwnProperty(object)) continue;
-                if (object.id === this.id) {
-                    delete collisionMap[layer][object];
-                }
-            }
-        }
-        let collisionMapEvents = this.controller.collisionMapEvents;
-        for (let layer in collisionMapEvents) {
-            if (!collisionMapEvents.hasOwnProperty(layer)) continue;
-            if (collisionMapEvents[layer][this.id]) {
-                delete collisionMapEvents[layer][this.id];
-                break;
-            }
-        }
-        this._deleted = true;
     }
 }
