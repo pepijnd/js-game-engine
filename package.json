@@ -6,33 +6,29 @@
   "dependencies": {
     "@babel/core": "^7.1.5",
     "@babel/preset-env": "^7.1.5",
-    "babel-loader": "^8.0.4",
-    "css-loader": "^1.0.1",
-    "file-loader": "^2.0.0",
-    "html-webpack-pug-plugin": "^0.3.0",
+    "webpack": "^4.25.1",
     "jquery": "^3.3.1",
-    "jshint": "^2.9.6",
-    "jshint-loader": "^0.8.4",
-    "json-loader": "^0.5.7",
     "node-sass": "^4.10.0",
     "path": "^0.12.7",
-    "pug": "^2.0.3",
-    "sass-loader": "^7.1.0",
-    "style-loader": "^0.23.1",
-    "url-loader": "^1.1.2",
-    "webpack": "^4.25.1",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.10"
+    "pug": "^2.0.3"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/runtime": "^7.1.5",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "url-loader": "^1.1.2",
+    "json-loader": "^0.5.7",
+    "babel-loader": "^8.0.4",
+    "css-loader": "^1.0.1",
+    "file-loader": "^2.0.0",
+    "pug-loader": "^2.4.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.4",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
-    "pug-loader": "^2.4.0",
-    "sugarss": "^2.0.0",
-    "uglifyjs-webpack-plugin": "^2.0.1"
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
   },
   "homepage": "",
   "license": "MIT",
@@ -41,8 +37,8 @@
     "url": ""
   },
   "scripts": {
-    "dev": "webpack-dev-server -d --colors",
-    "build": "webpack -p"
+    "dev": "webpack-dev-server -d --colors --env.NODE_ENV=development",
+    "build": "webpack -p --mode production --env.NODE_ENV=production --progress"
   },
   "engines": {
     "node": ">=6.11.5"
