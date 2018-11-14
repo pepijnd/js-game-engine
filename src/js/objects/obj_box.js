@@ -4,7 +4,7 @@ import SprBox from "img/box.png"
 import Box from "hitbox/box";
 
 export default class ObjBox extends Obj {
-    evtCreate(controller) {
+    evtCreate() {
         this.sprite = Sprite.fromImage(controller.imageController.getImage(SprBox));
         this.sprite.center();
 
@@ -15,12 +15,12 @@ export default class ObjBox extends Obj {
 
         this.hitbox = Box.Create();
 
-        controller.registerHitbox(0, this);
+        this.controller.registerHitbox(0, this);
 
         //super.evtCreate();
     }
 
-    evtStep(controller) {
+    evtStep() {
         //super.evtStep(controller);
         this.hitbox.x = this.position.x;
         this.hitbox.y = this.position.y;
@@ -30,7 +30,7 @@ export default class ObjBox extends Obj {
         this.hitbox.update();
     }
 
-    evtDraw(controller, context) {
+    evtDraw(context) {
         //context.drawSpriteRot(this.sprite, this.position.x, this.position.y, this.direction);
         context.drawPolygon(this.hitbox.x,
             this.hitbox.y,

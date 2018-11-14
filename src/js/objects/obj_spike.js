@@ -5,19 +5,19 @@ import Polygon from "hitbox/polygon";
 import ObjKid from "objects/obj_kid";
 
 export default class ObjSpike extends Obj {
-    evtCreate(controller) {
+    evtCreate() {
         this.sprites = {
             up: Sprite.fromSpritesheet(
-                controller.imageController.getImage(SprSpikes),
+                this.controller.imageController.getImage(SprSpikes),
                 32, 32, [[0, 0]], 0, 0),
             down: Sprite.fromSpritesheet(
-                controller.imageController.getImage(SprSpikes),
+                this.controller.imageController.getImage(SprSpikes),
                 32, 32, [[1, 0]], 0, 0),
             left: Sprite.fromSpritesheet(
-                controller.imageController.getImage(SprSpikes),
+                this.controller.imageController.getImage(SprSpikes),
                 32, 32, [[2, 0]], 0, 0),
             right: Sprite.fromSpritesheet(
-                controller.imageController.getImage(SprSpikes),
+                this.controller.imageController.getImage(SprSpikes),
                 32, 32, [[3, 0]], 0, 0),
         };
 
@@ -51,27 +51,27 @@ export default class ObjSpike extends Obj {
         this.hitbox.x = this.position.x;
         this.hitbox.y = this.position.y;
         this.hitbox.update();
-        controller.registerHitbox(0, this);
-        controller.registerCollision(0, this, ObjKid);
+        this.controller.registerHitbox(0, this);
+        this.controller.registerCollision(0, this, ObjKid);
 
         this.collision = false;
 
         //super.evtCreate();
     }
 
-    evtBeginStep(controller) {
+    evtBeginStep() {
         this.collision = false
     }
 
-    evtCollision(controller, other) {
+    evtCollision(other, hitbox) {
         this.collision = true;
     }
 
-    evtStep(controller) {
+    evtStep() {
         //super.evtStep(controller);
     }
 
-    evtDraw(controller, context) {
+    evtDraw(context) {
         context.drawSprite(this.sprite, this.position.x, this.position.y);
         //context.drawRect(this.position.x, this.position.y, 32, 32, "#ff0000");
         if (this.collision) {

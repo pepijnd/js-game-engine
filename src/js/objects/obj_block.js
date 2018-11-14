@@ -4,8 +4,8 @@ import SprBlock from "img/block.png"
 import AABB from "hitbox/aabb";
 
 export default class ObjBlock extends Obj {
-    evtCreate(controller) {
-        this.sprite = Sprite.fromImage(controller.imageController.getImage(SprBlock));
+    evtCreate() {
+        this.sprite = Sprite.fromImage(this.controller.imageController.getImage(SprBlock));
         this.hitbox = AABB.Create();
         this.hitbox.w = this.sprite.width;
         this.hitbox.h = this.sprite.height;
@@ -13,16 +13,16 @@ export default class ObjBlock extends Obj {
         this.hitbox.y = this.position.y;
         this.hitbox.update();
 
-        controller.registerHitbox("solid", this);
-        controller.registerHitbox("blood", this);
+        this.controller.registerHitbox("solid", this);
+        this.controller.registerHitbox("blood", this);
     }
 
-    evtStep(controller) {
+    evtStep() {
         //super.evtStep(controller);
 
     }
 
-    evtDraw(controller, context) {
+    evtDraw(context) {
         context.drawSprite(this.sprite, this.position.x, this.position.y);
     }
 }

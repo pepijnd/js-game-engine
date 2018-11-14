@@ -4,7 +4,7 @@ import ObjBlock from "objects/obj_block";
 
 
 export default class ObjKid extends Obj {
-    evtCreate(controller) {
+    evtCreate() {
         this.offset = {
             x: 1,
             y: 1
@@ -27,8 +27,8 @@ export default class ObjKid extends Obj {
 
         this.gravity = 0.44;
 
-        controller.registerHitbox("blood", this);
-        controller.registerCollision("blood", this, ObjBlock);
+        this.controller.registerHitbox("blood", this);
+        this.controller.registerCollision("blood", this, ObjBlock);
     }
 
     evtCollision(other, hitbox) {
@@ -58,7 +58,7 @@ export default class ObjKid extends Obj {
         this.hitbox.update();
     }
 
-    evtDraw(controller, context) {
+    evtDraw(context) {
         context.drawRect(this.position.x-1, this.position.y-1, 2, 2, "#ff0000");
     }
 }

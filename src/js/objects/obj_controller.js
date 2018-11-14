@@ -2,6 +2,7 @@ import Obj from "object";
 import ObjSpike from "objects/obj_spike";
 import ObjKid from "objects/obj_kid";
 import ObjBlock from "objects/obj_block";
+import ObjBall from "objects/obj_ball";
 import Keycodes from "keycodes";
 
 export default class ObjController extends Obj {
@@ -44,6 +45,12 @@ export default class ObjController extends Obj {
             let spike = ObjSpike.Create(this.controller);
             spike.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
             spike.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
+        }
+
+        if (this.controller.inputController.checkReleased(Keycodes.b)) {
+            let ball = ObjBall.Create(this.controller);
+            ball.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
+            ball.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
         }
 
         if (this.controller.inputController.checkReleased(Keycodes.backspace)) {

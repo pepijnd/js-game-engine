@@ -2,13 +2,11 @@ import Hitbox from "hitbox/hitbox";
 import AABB from "hitbox/aabb";
 import Polygon from "hitbox/polygon";
 
-export default class Box extends Hitbox {
+export default class Circle extends Hitbox {
     constructor(options) {
         super(options);
-        this.w = options.w;
-        this.h = options.h;
         this.r = options.r;
-
+        this.res = options.res;
         this.aabb = AABB.Create();
     }
 
@@ -18,20 +16,13 @@ export default class Box extends Hitbox {
     }
 
     static GetDefaultOptions() {
-        return Object.assign({}, super.GetDefaultOptions(), {1: 0, h: 1, r: 0});
+        return Object.assign({}, super.GetDefaultOptions(), {r: 1, res:12});
     }
 
     update() {
-        let w = this.w;
-        let h = this.h;
         let r = this.r;
-        if (!(this.r < Math.PI / 2 || (this.r > Math.PI && this.r < Math.PI * 3 / 2))) {
-            w = this.h;
-            h = this.w;
-            r = this.r - Math.PI / 2;
-        }
-        this.aabb.w = Math.abs((w * Math.cos(r)) + (h * Math.sin(r)));
-        this.aabb.h = Math.abs((w * Math.sin(r)) + (h * Math.cos(r)));
+        this.aabb.w = this.r * 2;
+        this.aabb.h = this.r * 2;
         this.aabb.x = this.x;
         this.aabb.y = this.y;
     }
@@ -58,10 +49,13 @@ export default class Box extends Hitbox {
 
     getVertices() {
         let vertices = [];
-        vertices.push(this.rotateVertice({x: 0, y: 0}));
-        vertices.push(this.rotateVertice({x: this.w, y: 0}));
-        vertices.push(this.rotateVertice({x: this.w, y: this.h}));
-        vertices.push(this.rotateVertice({x: 0, y: this.h}));
+        for (let i=0; i<this.res; i++) {
+            let j = (Math.PI * 2) / this.res * i;
+            vertices.push({
+                x: Math.cos(j) * this.r + this.r,
+                y: Math.sin(j) * this.r + this.r
+            });
+        }
         return vertices;
     }
 
@@ -70,8 +64,11 @@ export default class Box extends Hitbox {
     }
 
     toPolygon() {
-        let polygon = Polygon.Create({vertices: this.getVertices()});
-        polygon = Object.assign(polygon, this);
+        let polygon = Polygon.Create({
+            vertices: this.getVertices(),
+            x: this.x,
+            y: this.y
+        });
         polygon.update();
         return polygon;
     }

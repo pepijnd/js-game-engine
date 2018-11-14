@@ -85,7 +85,7 @@ export default class Controller {
     drawLoop() {
         this.context.drawClear();
         this.objectController.forAll((obj) => {
-            obj.evtDraw(this, this.context);
+            obj.evtDraw(this.context);
         }, "depth");
         this.frames += 1;
     }
@@ -120,12 +120,12 @@ export default class Controller {
         let createEvents = this.newObjects.slice();
         this.newObjects = [];
         for (let i = 0; i < createEvents.length; i++) {
-            createEvents[i].evtCreate(this);
+            createEvents[i].evtCreate();
             createEvents[i]._created = true;
         }
 
         this.objectController.forAll((object) => {
-            object.evtBeginStep(this);
+            object.evtBeginStep();
         });
 
         for (let layer in this.collisionMap) {
@@ -156,11 +156,11 @@ export default class Controller {
         }
 
         this.objectController.forAll((object) => {
-            object.evtStep(this);
+            object.evtStep();
         });
 
         this.objectController.forAll((object) => {
-            object.evtEndStep(this);
+            object.evtEndStep();
         });
 
         this.ticks += 1;
