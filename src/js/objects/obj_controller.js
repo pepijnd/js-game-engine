@@ -11,6 +11,11 @@ export default class ObjController extends Obj {
         //this.box = ObjBox.Create(controller);
         ObjKid.Create(this.controller);
 
+        this.depth = -100;
+
+        this.grid = false;
+        this.gridSize = 32;
+
         for (let i = 1; i < this.controller.context.width / 32 - 1; i++) {
             let floor = ObjBlock.Create(this.controller);
             floor.position.x = i * 32;
@@ -34,31 +39,34 @@ export default class ObjController extends Obj {
     }
 
     evtStep() {
+        let mouse_x = Math.floor(this.controller.inputController.mouse.x / this.gridSize) * this.gridSize;
+        let mouse_y = Math.floor(this.controller.inputController.mouse.y / this.gridSize) * this.gridSize;
+
         if (this.controller.inputController.mouse.click) {
             let block = ObjBlock.Create(this.controller);
-            block.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
-            block.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
+            block.position.x = mouse_x;
+            block.position.y = mouse_y;
         }
 
 
         if (this.controller.inputController.checkReleased(Keycodes.s)) {
             let spike = ObjSpike.Create(this.controller);
-            spike.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
-            spike.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
+            spike.position.x = mouse_x;
+            spike.position.y = mouse_y;
         }
 
         if (this.controller.inputController.checkReleased(Keycodes.b)) {
             let ball = ObjBall.Create(this.controller);
-            ball.position.x = Math.round(this.controller.inputController.mouse.x / 16) * 16;
-            ball.position.y = Math.round(this.controller.inputController.mouse.y / 16) * 16;
+            ball.position.x = mouse_x;
+            ball.position.y = mouse_y;
         }
 
         if (this.controller.inputController.checkReleased(Keycodes.backspace)) {
             let closest = null;
             let distance = -1;
             let origin = {
-                x: Math.round(this.controller.inputController.mouse.x / 16) * 16,
-                y: Math.round(this.controller.inputController.mouse.y / 16) * 16
+                x: mouse_x,
+                y: mouse_y
             };
             this.controller.objectController.forAll((obj) => {
                 let dist = Math.sqrt((origin.x - obj.position.x)**2 + (origin.y - obj.position.y)**2);
@@ -67,12 +75,33 @@ export default class ObjController extends Obj {
                     distance = dist;
                 }
             });
-            if (distance < 48) {
+            if (distance < this.gridSize) {
                 closest.delete();
             }
         }
+
+        if (this.controller.inputController.checkPressed(Keycodes.zero)) {
+            this.grid = !this.grid;
+        }
+
+        if (this.controller.inputController.checkPressed(Keycodes.minus)) {
+            this.gridSize /= 2;
+        }
+
+        if (this.controller.inputController.checkPressed(Keycodes.plus)) {
+            this.gridSize *= 2;
+        }
+
     }
 
     evtDraw(context) {
+        if (this.grid) {
+            for (let xx=this.gridSize; xx<context.width; xx+=this.gridSize) {
+                context.drawLine(xx, 0, xx, context.height, "#000000");
+            }
+            for (let yy=this.gridSize; yy<context.height; yy+=this.gridSize) {
+                context.drawLine(0, yy, context.width, yy, "#000000");
+            }
+        }
     }
 }
