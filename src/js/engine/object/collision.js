@@ -12,7 +12,7 @@ Obj.prototype.moveContact = function (layer, direction, max, hitbox) {
     let i = 0;
     let xx = Math.cos(direction), yy = Math.sin(direction);
 
-    while (Math.sqrt((xx * i) ** 2) + Math.sqrt((yy * i) ** 2) < max) {
+    while ((xx*i)**2 + (yy*i)**2 < max**2) {
         if (this.placeFree(layer, this.position.x + xx*(i+1), this.position.y + yy*(i+1), hitbox)) {
             i++;
         } else break;
