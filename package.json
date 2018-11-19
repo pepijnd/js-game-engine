@@ -37,8 +37,8 @@
     "url": ""
   },
   "scripts": {
-    "dev": "webpack-dev-server -d --colors --env.NODE_ENV=development",
-    "build": "webpack -p --mode production --env.NODE_ENV=production --progress"
+    "dev": "webpack-dev-server -d --colors --mode development --progress",
+    "build": "webpack -p --colors --mode production --progress"
   },
   "engines": {
     "node": ">=6.11.5"

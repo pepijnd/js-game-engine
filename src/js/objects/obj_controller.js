@@ -3,6 +3,7 @@ import ObjSpike from "objects/obj_spike";
 import ObjKid from "objects/obj_kid";
 import ObjBlock from "objects/obj_block";
 import ObjBall from "objects/obj_ball";
+import ObjPlatform from "objects/obj_platform";
 import Keycodes from "keycodes";
 
 export default class ObjController extends Obj {
@@ -59,6 +60,13 @@ export default class ObjController extends Obj {
             let ball = ObjBall.Create(this.controller);
             ball.position.x = mouse_x;
             ball.position.y = mouse_y;
+        }
+
+
+        if (this.controller.inputController.checkReleased(Keycodes.p)) {
+            let platoform = ObjPlatform.Create(this.controller);
+            platoform.position.x = mouse_x;
+            platoform.position.y = mouse_y;
         }
 
         if (this.controller.inputController.checkReleased(Keycodes.backspace)) {

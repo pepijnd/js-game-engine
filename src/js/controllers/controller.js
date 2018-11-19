@@ -101,12 +101,28 @@ export default class Controller {
         hitbox.x = x;
         hitbox.y = y;
         hitbox.update();
-        for (let i = 0; i < this.collisionMap[layer].length; i++) {
-            let col = this.collisionMap[layer][i];
-            if (col.hitbox !== false) {
-                if (col.hitbox.checkCollision(hitbox)) return col;
-            } else {
-                if (col.obj.hitbox.checkCollision(hitbox)) return col;
+        if (layer in this.collisionMap) {
+            for (let i = 0; i < this.collisionMap[layer].length; i++) {
+                let col = this.collisionMap[layer][i];
+                if (col.hitbox !== false) {
+                    if (col.hitbox.checkCollision(hitbox)) return col;
+                } else {
+                    if (col.obj.hitbox.checkCollision(hitbox)) return col;
+                }
+            }
+        }
+        return false;
+    }
+
+    hitboxCheckCollision(layer, hitbox) {
+        if (layer in this.collisionMap) {
+            for (let i = 0; i < this.collisionMap[layer].length; i++) {
+                let col = this.collisionMap[layer][i];
+                if (col.hitbox !== false) {
+                    if (col.hitbox.checkCollision(hitbox)) return col;
+                } else {
+                    if (col.obj.hitbox.checkCollision(hitbox)) return col;
+                }
             }
         }
         return false;

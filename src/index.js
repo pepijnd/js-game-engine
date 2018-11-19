@@ -1,6 +1,7 @@
 import "css/index.scss";
 import settings from "gameSettings";
 
+import "engine";
 import Context from "context";
 import Controller from "controllers/controller";
 
@@ -13,6 +14,7 @@ import SprSpikes from "img/spikes.png";
 import SprBlock from "img/block.png";
 import SprBallRed from "img/ball_red.png";
 import SprBallYellow from "img/ball_yellow.png"
+import SprPlatform from "img/platform.png"
 
 import ObjController from "objects/obj_controller";
 
@@ -33,6 +35,7 @@ window.onload = function () {
     controller.imageController.register(SprBlock);
     controller.imageController.register(SprBallRed);
     controller.imageController.register(SprBallYellow);
+    controller.imageController.register(SprPlatform);
 
     controller.run(() => {
         ObjController.Create(controller);

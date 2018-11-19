@@ -3,28 +3,30 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
+const webpack = require("webpack");
 const path = require('path');
 
-module.exports = (env) => {
-    const dev = env.NODE_ENV !== 'production';
+module.exports = (env, argv) => {
+    const production = argv.mode === 'production';
     return {
         entry: {
-            app: './src',
+            app: './src/index.js',
             vendor: ['jquery'],
         },
         output: {
-            filename: 'assets/js/' + (dev ? '[name].js' : '[name].[hash].js')
+            filename: production ? '[name].[hash].js' : '[name].js'
         },
         optimization: {
+            minimize: production,
             minimizer: [new UglifyJsPlugin({
                 cache: true,
                 parallel: true,
                 uglifyOptions: {
-                    compress: false,
+                    compress: true,
                     ecma: 6,
                     mangle: true
                 },
-                sourceMap: dev
+                sourceMap: !production
             }),
                 new OptimizeCSSAssetsPlugin({})
             ],
@@ -33,6 +35,12 @@ module.exports = (env) => {
                     vendor: {
                         test: /[\\/]node_modules[\\/]/,
                         name: 'vendor',
+                        chunks: 'all',
+                        enforce: true
+                    },
+                    engine: {
+                        test: /[\\/]src[\\/]js[\\/]/,
+                        name: 'engine',
                         chunks: 'all',
                         enforce: true
                     },
@@ -64,7 +72,7 @@ module.exports = (env) => {
                     loader: 'file-loader',
                     include: [path.resolve('src/img')],
                     options: {
-                        name: 'assets/img/' + (dev ? '[name].[ext]' : '[hash].[ext]'),
+                        name: 'assets/img/' + (production ? '[hash].[ext]' : '[name].[ext]'),
                     }
                 },
                 {
@@ -72,7 +80,7 @@ module.exports = (env) => {
                     loader: 'file-loader',
                     include: [path.resolve('src/font')],
                     options: {
-                        name: 'assets/font/' + (dev ? '[name].[ext]' : '[hash].[ext]'),
+                        name: 'assets/font/' + (production ? '[hash].[ext]' : '[name].[ext]'),
                     }
                 },
                 {
@@ -83,7 +91,7 @@ module.exports = (env) => {
                 {
                     test: /\.(sa|sc|c)ss$/,
                     use: [
-                        dev ? 'style-loader' : MiniCssExtractPlugin.loader,
+                        production ? MiniCssExtractPlugin.loader : 'style-loader',
                         'css-loader',
                         'sass-loader',
                     ],
@@ -94,7 +102,10 @@ module.exports = (env) => {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-env'],
+                            presets: [
+                                ['@babel/preset-env', {
+                                    targets: "> 0.25%, not dead"
+                                }]],
                             plugins: ['@babel/plugin-transform-runtime']
                         }
                     }
@@ -110,7 +121,9 @@ module.exports = (env) => {
                 inject: false,
                 template: 'src/html/index.pug',
                 title: 'Game Engine'
-            }),
+            })
         ],
-    };
-}
+    }
+};
+
+

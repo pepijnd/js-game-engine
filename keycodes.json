@@ -10,7 +10,8 @@
   "backspace": 8,
   "b": 66,
   "s": 83,
+  "p": 80,
   "zero": 48,
-  "minus": 189,
-  "plus": 187
+  "minus": 173,
+  "plus": 61
 }
