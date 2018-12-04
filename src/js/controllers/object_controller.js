@@ -2,6 +2,7 @@ export default class ObjectController {
     constructor(controller) {
         this.controller = controller;
         this.objects = {};
+        this.newObjects = [];
         this.next_id = 3;
     }
 
@@ -9,8 +10,13 @@ export default class ObjectController {
         object.id = this.next_id;
         this.objects[this.next_id] = object;
         this.next_id += 1;
-        object._controller = this.controller;
-        this.controller.newObjects.push(object);
+        this.newObjects.push(object);
+    }
+
+    getNewObjects(clear=true) {
+        let new_objects = this.newObjects.slice();
+        if (clear) this.newObjects = [];
+        return new_objects;
     }
 
     forAll(f, order = "id", created = true) {

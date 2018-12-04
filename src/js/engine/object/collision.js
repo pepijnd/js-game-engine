@@ -1,11 +1,15 @@
 import Obj from "object";
 
-Obj.prototype.placeFree = function (layer, x, y, hitbox = false) {
+Obj.prototype.placeCollision = function (layer, x, y, hitbox = false) {
     let hb = hitbox || Object.assign(Object.create(Object.getPrototypeOf(this.hitbox)), this.hitbox);
     hb.x = x;
     hb.y = y;
     hb.update();
-    return !this.controller.hitboxCheckCollision(layer, hb);
+    return this.controller.hitboxCheckCollision(layer, hb, this);
+};
+
+Obj.prototype.placeFree = function (layer, x, y, hitbox=false) {
+    return !this.placeCollision(layer, x, y, hitbox);
 };
 
 Obj.prototype.moveContact = function (layer, direction, max, hitbox) {

@@ -6,37 +6,51 @@ import ObjBall from "objects/obj_ball";
 import ObjPlatform from "objects/obj_platform";
 import Keycodes from "keycodes";
 
+import EventTypes from 'engine/events';
+
 export default class ObjController extends Obj {
-    evtCreate() {
-        //this.car = ObjCar.Create(controller);
-        //this.box = ObjBox.Create(controller);
-        ObjKid.Create(this.controller);
+    setEvents() {
+        this.onEvent(EventTypes.CREATE, () => {
+            console.log('test 1');
+            ObjKid.Create(this.controller);
 
-        this.depth = -100;
+            this.depth = -100;
 
-        this.grid = false;
-        this.gridSize = 32;
+            this.grid = false;
+            this.gridSize = 32;
 
-        for (let i = 1; i < this.controller.context.width / 32 - 1; i++) {
-            let floor = ObjBlock.Create(this.controller);
-            floor.position.x = i * 32;
-            floor.position.y = this.controller.context.height - 32;
+            for (let i = 1; i < this.controller.context.width / 32 - 1; i++) {
+                let floor = ObjBlock.Create(this.controller);
+                floor.position.x = i * 32;
+                floor.position.y = this.controller.context.height - 32;
 
-            let ceil = ObjBlock.Create(this.controller);
-            ceil.position.x = i * 32;
-            ceil.position.y = 0;
-        }
+                let ceil = ObjBlock.Create(this.controller);
+                ceil.position.x = i * 32;
+                ceil.position.y = 0;
+            }
 
-        for (let j = 0; j < this.controller.context.height / 32; j++) {
-            let left = ObjBlock.Create(this.controller);
-            left.position.x = 0;
-            left.position.y = j * 32;
+            for (let j = 0; j < this.controller.context.height / 32; j++) {
+                let left = ObjBlock.Create(this.controller);
+                left.position.x = 0;
+                left.position.y = j * 32;
 
-            let right = ObjBlock.Create(this.controller);
-            right.position.x = this.controller.context.width - 32;
-            right.position.y = j * 32;
-        }
+                let right = ObjBlock.Create(this.controller);
+                right.position.x = this.controller.context.width - 32;
+                right.position.y = j * 32;
+            }
 
+            for (let i = 0; i < 4; i++) {
+                let a = ObjPlatform.Create(this.controller);
+                a.position.x = i * 32 + 128;
+                a.position.y = 480 + i;
+            }
+
+            console.log('test 2');
+        });
+
+        this.onEvent(EventTypes.STEP, () => {
+            console.log('step');
+        });
     }
 
     evtStep() {
@@ -77,7 +91,7 @@ export default class ObjController extends Obj {
                 y: mouse_y
             };
             this.controller.objectController.forAll((obj) => {
-                let dist = Math.sqrt((origin.x - obj.position.x)**2 + (origin.y - obj.position.y)**2);
+                let dist = Math.sqrt((origin.x - obj.position.x) ** 2 + (origin.y - obj.position.y) ** 2);
                 if (distance === -1 || dist < distance) {
                     closest = obj;
                     distance = dist;
@@ -104,10 +118,10 @@ export default class ObjController extends Obj {
 
     evtDraw(context) {
         if (this.grid) {
-            for (let xx=this.gridSize; xx<context.width; xx+=this.gridSize) {
+            for (let xx = this.gridSize; xx < context.width; xx += this.gridSize) {
                 context.drawLine(xx, 0, xx, context.height, "#000000");
             }
-            for (let yy=this.gridSize; yy<context.height; yy+=this.gridSize) {
+            for (let yy = this.gridSize; yy < context.height; yy += this.gridSize) {
                 context.drawLine(0, yy, context.width, yy, "#000000");
             }
         }

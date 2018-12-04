@@ -1,4 +1,5 @@
 import AABB from "hitbox/aabb";
+import EventTypes from 'engine/events';
 
 export default class Obj {
     constructor(sprite = null) {
@@ -6,6 +7,8 @@ export default class Obj {
         this._created = false;
         this._deleted = false;
         this._controller = null;
+        this._eventMap = {};
+        this._eventsSetCheck = true;
 
         this.sprite = sprite;
         this.sprite_index = 0;
@@ -39,8 +42,53 @@ export default class Obj {
 
     static Create(controller, sprite = null) {
         let obj = new this.prototype.constructor(sprite);
+        obj._controller = controller;
         controller.objectController.register(obj);
+        obj.init();
         return obj;
+    }
+
+    init() {
+        this.setEvents();
+        if (!this._eventsSetCheck) {
+            throw Error('the SetEvents function of object ' + this.constructor.name + ' must be overridden');
+        }
+    }
+
+    setEvents() {
+        this._eventsSetCheck = false;
+    }
+
+    onEvent(event, func) {
+        if (EventTypes.event_get(event) === EventTypes.UNKNOWN) {
+            throw Error('Unknown event type');
+        }
+
+        if (!(event in this._eventMap)) {
+            this._eventMap[event] = [];
+        }
+        this._eventMap[event].push(func);
+    }
+
+    runEvent(event, eventData) {
+        if (EventTypes.event_get(event) === EventTypes.UNKNOWN) {
+            throw Error('Unknown event type');
+        }
+        if (event in this._eventMap) {
+            if (event === EventTypes.CREATE) {
+                if (this.created) return false;
+            }
+            for (let i=0; i<this._eventMap[event].length; i++) {
+                let func = this._eventMap[event][i];
+                if (event === EventTypes.COLLISION) {
+                    func.call(this, eventData.other, eventData.hitbox);
+                } else {
+                    func.call(this);
+                }
+            }
+            if (event === EventTypes.CREATE) this._created = true;
+        }
+        return true;
     }
 
     evtCreate() {
