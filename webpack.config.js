@@ -2,6 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 
 const webpack = require("webpack");
 const path = require('path');
@@ -106,7 +107,10 @@ module.exports = (env, argv) => {
                                 ['@babel/preset-env', {
                                     targets: "> 0.25%, not dead"
                                 }]],
-                            plugins: ['@babel/plugin-transform-runtime']
+                            plugins: [
+                                '@babel/plugin-transform-runtime',
+                                'dynamic-import-webpack'
+                            ]
                         }
                     }
                 }
@@ -121,6 +125,11 @@ module.exports = (env, argv) => {
                 inject: false,
                 template: 'src/html/index.pug',
                 title: 'Game Engine'
+            }),
+            new WasmPackPlugin({
+                crateDirectory: path.resolve(__dirname, "."),
+                extraArgs: "--no-typescript",
+                forceMode: "production"
             })
         ],
     }

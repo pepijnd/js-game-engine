@@ -64,28 +64,40 @@ export default class Obj {
             throw Error('Unknown event type');
         }
 
-        if (!(event in this._eventMap)) {
-            this._eventMap[event] = [];
+        if (!(event.id in this._eventMap)) {
+            this._eventMap[event.id] = [];
         }
-        this._eventMap[event].push(func);
+        this._eventMap[event.id].push(func);
+    }
+
+    hasEvent(event) {
+        return (event.id in this._eventMap);
+    }
+
+    forEventMap(event, func) {
+        for (let i = 0; i < this._eventMap[event.id].length; i++) {
+            let eventCall = this._eventMap[event.id][i];
+            func.call(this, eventCall);
+        }
     }
 
     runEvent(event, eventData) {
         if (EventTypes.event_get(event) === EventTypes.UNKNOWN) {
             throw Error('Unknown event type');
         }
-        if (event in this._eventMap) {
+        if (this.hasEvent(event)) {
             if (event === EventTypes.CREATE) {
                 if (this.created) return false;
             }
-            for (let i=0; i<this._eventMap[event].length; i++) {
-                let func = this._eventMap[event][i];
+            this.forEventMap(event, (func) => {
                 if (event === EventTypes.COLLISION) {
                     func.call(this, eventData.other, eventData.hitbox);
+                } else if (event === EventTypes.DRAW) {
+                    func.call(this, eventData.context);
                 } else {
                     func.call(this);
                 }
-            }
+            });
             if (event === EventTypes.CREATE) this._created = true;
         }
         return true;
@@ -134,8 +146,8 @@ export default class Obj {
     }
 
     delete() {
-        this.controller.deleteHitbox(true, this);
-        this.controller.deleteCollision(true, this);
+        //this.controller.deleteHitbox(true, this);
+        //this.controller.deleteCollision(true, this);
         delete this.controller.objectController.objects[this.id];
     }
 }

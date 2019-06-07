@@ -1,8 +1,8 @@
 const EventTypeValues = {};
 
 class EventType {
-    constructor() {
-        this.value = Symbol();
+    constructor(value) {
+        this.value = value || Symbol();
         EventTypeValues[this.value] = this;
     }
 
@@ -12,14 +12,18 @@ class EventType {
         }
         return EventType.UNKNOWN;
     }
+
+    get id() {
+        return this.value;
+    }
 }
 
-EventType.UNKNOWN           = new EventType();
-EventType.CREATE            = new EventType();
-EventType.BEGINSTEP         = new EventType();
-EventType.COLLISION         = new EventType();
-EventType.STEP              = new EventType();
-EventType.ENDSTEP           = new EventType();
-EventType.DRAW              = new EventType();
+EventType.UNKNOWN           = new EventType('UNKNOWN');
+EventType.CREATE            = new EventType('CREATE');
+EventType.BEGINSTEP         = new EventType('BEGINSTEP');
+EventType.COLLISION         = new EventType('COLLISION');
+EventType.STEP              = new EventType('STEP');
+EventType.ENDSTEP           = new EventType('ENDSTEP');
+EventType.DRAW              = new EventType('DRAW');
 
 export default EventType

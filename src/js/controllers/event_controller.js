@@ -14,8 +14,8 @@ export default class EventController {
 
     runDrawEvents() {
         this.controller.objectController.forAll((object) => {
-            object.runEvent(EventType.DRAW);
-        });
+            object.runEvent(EventType.DRAW, {context: this.controller.context});
+        }, 'depth');
     }
 
     runEvents() {

@@ -89,9 +89,7 @@ export default class Controller {
 
     drawLoop() {
         this.context.drawClear();
-        this.objectController.forAll((obj) => {
-            obj.evtDraw(this.context);
-        }, "depth");
+        this.eventController.runDrawEvents();
         this.frames += 1;
     }
 
@@ -120,7 +118,6 @@ export default class Controller {
     }
 
     tickLoop() {
-
         if (this.stopped) {
             return;
         }
